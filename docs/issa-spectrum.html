@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Junhui He" />
+
+
+<title>ISSA Skin Spectrum Reflectance</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">SkinSpectrum</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">ISSA Skin Spectrum Reflectance</h1>
+<h4 class="author">Junhui He</h4>
+<h4 class="date">八月 22, 2025</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2025-08-22
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>SkinSpectrum/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.1). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20250822code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20250822)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20250822code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20250822)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong5f82c70">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong> 5f82c70
+</a>
+</p>
+</div>
+<div id="strongRepositoryversionstrong5f82c70"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version 5f82c70.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  analysis/issa-spectrum.Rmd
+
+Unstaged changes:
+    Modified:   .Rprofile
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<div id="introduction-to-the-issa-dataset" class="section level1"
+number="1">
+<h1><span class="header-section-number">1</span> Introduction to the
+ISSA Dataset</h1>
+<p>The International Skin Spectra Archive (ISSA) offers a detailed
+collection of spectral and colorimetric data for human skin,
+encompassing 15,256 records from 2,113 subjects. This data spans from
+2012 to 2024 and originates from eleven datasets curated by
+international laboratories across eight countries: the UK, Spain, China,
+Japan, Pakistan, Thailand, Iraq, and Saudi Arabia. Each dataset follows
+a standardised measurement protocol to maintain data consistency.</p>
+<p>In the ISSA dataset, individual records provide extensive details
+including record number, data origin, subject identification, and skin
+type—categorised by ethnicity, gender, age, and body location. The
+dataset also includes detailed information on the measurement
+instruments used, such as type, specular component inclusion, wavelength
+range and interval.</p>
+<p>Alongside spectral data, each sample also contains CIE colorimetric
+data, including tristimulus values, xy chromaticity coordinates, CIELAB
+parameters, etc., based on the CIE 1931 standard colorimetric observer
+and the CIE standard illuminant D65.</p>
+<div id="data-records" class="section level2" number="1.1">
+<h2><span class="header-section-number">1.1</span> Data Records</h2>
+<p>The datasheet arranges data across columns labelled A to BQ:</p>
+<ul>
+<li>A: Unique record identifier</li>
+<li>B: Data origin</li>
+<li>C: Subject number</li>
+<li>D to G: Ethnicity, gender, age group, and body location</li>
+<li>H to L: Instrument details including type and spectral measurement
+specifics</li>
+<li>N to BD: Spectral data from 360 nm to 780 nm</li>
+<li>BF to BQ: CIE colorimetric data</li>
+</ul>
+</div>
+<div id="skin-type" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Skin Type</h2>
+<ul>
+<li><strong>Ethnicity</strong>: CA (Caucasian), CN (Chinese), SA (South
+Asian), AF (African), IQ (Iraqi), TH (Thai), JP (Japanese), AB
+(Arabian)</li>
+<li><strong>Gender</strong>: F (Female), M (Male)</li>
+<li><strong>Body Location</strong>: 1 (Back of Hand), 2 (Cheek), 3
+(Cheek bone), 4 (Chin), 5 (Ear Lobe), 6 (Forehead), 7 (Inner arm), 8
+(Neck), 9 (Nose tip), 10 (Outer arm), 11 (Palm), 12 (Ring finger)</li>
+</ul>
+</div>
+</div>
+<div id="plot-skin-spectrum-reflectance-from-issa"
+class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Plot Skin Spectrum
+Reflectance from ISSA</h1>
+<p>In this section, we present skin reflectance spectra (reflectance
+intensity vs. wavelength) at the forehead, comparing different
+ethnicities and genders.</p>
+<div class="figure" style="text-align: center">
+<img src="figure/issa-spectrum.Rmd/issa_spectrum_plot-1.png" alt="ISSA skin reflectance spectra colored by melanin index" width="100%" />
+<p class="caption">
+ISSA skin reflectance spectra colored by melanin index
+</p>
+</div>
+<div class="figure" style="text-align: center">
+<img src="figure/issa-spectrum.Rmd/issa_spectrum_plot-2.png" alt="ISSA skin reflectance spectra colored by melanin index" width="100%" />
+<p class="caption">
+ISSA skin reflectance spectra colored by melanin index
+</p>
+</div>
+<div class="figure" style="text-align: center">
+<img src="figure/issa-spectrum.Rmd/issa_spectrum_plot-3.png" alt="ISSA skin reflectance spectra colored by melanin index" width="100%" />
+<p class="caption">
+ISSA skin reflectance spectra colored by melanin index
+</p>
+</div>
+<div class="figure" style="text-align: center">
+<img src="figure/issa-spectrum.Rmd/issa_spectrum_plot-4.png" alt="ISSA skin reflectance spectra colored by melanin index" width="100%" />
+<p class="caption">
+ISSA skin reflectance spectra colored by melanin index
+</p>
+</div>
+<div class="figure" style="text-align: center">
+<img src="figure/issa-spectrum.Rmd/issa_spectrum_plot-5.png" alt="ISSA skin reflectance spectra colored by melanin index" width="100%" />
+<p class="caption">
+ISSA skin reflectance spectra colored by melanin index
+</p>
+</div>
+<div class="figure" style="text-align: center">
+<img src="figure/issa-spectrum.Rmd/issa_spectrum_plot-6.png" alt="ISSA skin reflectance spectra colored by melanin index" width="100%" />
+<p class="caption">
+ISSA skin reflectance spectra colored by melanin index
+</p>
+</div>
+<div class="figure" style="text-align: center">
+<img src="figure/issa-spectrum.Rmd/issa_spectrum_plot-7.png" alt="ISSA skin reflectance spectra colored by melanin index" width="100%" />
+<p class="caption">
+ISSA skin reflectance spectra colored by melanin index
+</p>
+</div>
+<div class="figure" style="text-align: center">
+<img src="figure/issa-spectrum.Rmd/issa_spectrum_plot-8.png" alt="ISSA skin reflectance spectra colored by melanin index" width="100%" />
+<p class="caption">
+ISSA skin reflectance spectra colored by melanin index
+</p>
+</div>
+</div>
+<div id="construct-confidence-intervals" class="section level1"
+number="3">
+<h1><span class="header-section-number">3</span> Construct Confidence
+Intervals</h1>
+<p>In this section, we construct confidence intervals of the skin
+reflectance spectra in ISSA. The intervals are obtained using the
+following methods:</p>
+<ul>
+<li><p><strong>Naive Pointwise Confidence Intervals</strong></p></li>
+<li><p><strong>Bootstrap Methods</strong></p></li>
+</ul>
+<p>For compactness, we restrict our analysis to three ethnic
+groups—Caucasian, Chinese, and African—combining male and female
+participants, and focusing on the forehead location (site 6).</p>
+<pre class="r"><code># Extract the reflectance spectra of Caucasians, Chinese, and Africans at forehead
+location = &quot;6&quot;
+issa_spectrum_ca &lt;- as.matrix(issa_spectrum %&gt;% filter(D == &quot;CA&quot;, G == location) %&gt;% select(&quot;400&quot;:&quot;700&quot;))
+issa_spectrum_cn &lt;- as.matrix(issa_spectrum %&gt;% filter(D == &quot;CN&quot;, G == location) %&gt;% select(&quot;400&quot;:&quot;700&quot;))
+issa_spectrum_af &lt;- as.matrix(issa_spectrum %&gt;% filter(D == &quot;AF&quot;, G == location) %&gt;% select(&quot;400&quot;:&quot;700&quot;))</code></pre>
+<div id="naive-pointwise-confidence-intervals" class="section level2"
+number="3.1">
+<h2><span class="header-section-number">3.1</span> Naive Pointwise
+Confidence Intervals</h2>
+<p>Naive Pointwise Confidence Intervals calculate the mean reflectance
+and the empirical quantiles (<em>e.g.</em>, <span
+class="math inline">\(\alpha/2\)</span> and <span
+class="math inline">\(1-\alpha/2\)</span> quantiles) at each wavelength.
+The pointwise <span class="math inline">\(1-\alpha\)</span> confidence
+interval is then constructed as: <span class="math display">\[(\alpha/2
+~ \text{quantile}, ~ 1-\alpha/2 ~ \text{quantile} ).\]</span></p>
+<pre class="r"><code>NaivePointwiseCI &lt;- function(data, level = 0.95) {
+  wavelength = as.numeric(colnames(data))
+  lower = apply(data, 2, quantile, probs = (1-level)/2)
+  upper = apply(data, 2, quantile, probs = level + (1-level)/2)
+  mean_curve = colMeans(data)
+  return(data.frame(wavelength=wavelength, lower=lower, upper=upper, mean=mean_curve))
+}
+
+PlotPointwiseCI &lt;- function(df_ci, title) {
+  plot = ggplot(df_ci, aes(x = wavelength)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), fill = &quot;#fbf7ec&quot;) +
+    geom_line(aes(y = mean), color = &quot;#a15c33&quot;, linewidth = 1) +
+    expand_limits(y = 0) +
+    theme_classic() +
+    labs(
+      x = &quot;Wavelength (nm)&quot;,
+      y = &quot;Percent Reflectance of Skin&quot;,
+      color = &quot;Melanin Index&quot;
+    ) +
+    labs(
+      title = title
+    )
+  return(plot)
+}
+
+# Calculate lower, upper bounds and mean values
+issa_ci_ca = NaivePointwiseCI(issa_spectrum_ca, level = 0.95)
+issa_ci_cn = NaivePointwiseCI(issa_spectrum_cn, level = 0.95)
+issa_ci_af = NaivePointwiseCI(issa_spectrum_af, level = 0.95)
+
+plot_ci_ca = PlotPointwiseCI(issa_ci_ca, title = &quot;Naive Pointwise Confidence Intervals&quot;)
+plot_ca = PlotSkinSpectraWrapper(issa_spectrum, title = &quot;Caucasians at Forehead&quot;, ethnicity = &quot;CA&quot;, location = 6)
+
+plot_ci_cn = PlotPointwiseCI(issa_ci_cn, title = &quot;Naive Pointwise Confidence Intervals&quot;)
+plot_cn = PlotSkinSpectraWrapper(issa_spectrum, title = &quot;Chinese at Forehead&quot;, ethnicity = &quot;CN&quot;, location = 6)
+
+plot_ci_af = PlotPointwiseCI(issa_ci_af, title = &quot;Naive Pointwise Confidence Intervals&quot;)
+plot_af = PlotSkinSpectraWrapper(issa_spectrum, title = &quot;Africans at Forehead&quot;, ethnicity = &quot;AF&quot;, location = 6)
+
+print(((plot_ca | plot_ci_ca) / (plot_cn | plot_ci_cn) / (plot_af | plot_ci_af)))</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/issa-spectrum.Rmd/issa_spectrum_ci_naive-1.png" alt="Naive pointwise confidence intervals for forehead reflectance spectra" width="100%" />
+<p class="caption">
+Naive pointwise confidence intervals for forehead reflectance spectra
+</p>
+</div>
+</div>
+<div id="bootstrap-confidence-intervals-for-the-mean-function"
+class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Bootstrap Confidence
+Intervals for the Mean Function</h2>
+<p>To calculate confidence intervals for the mean function, we can
+bootstrap:</p>
+<ol style="list-style-type: decimal">
+<li>Resample <span class="math inline">\(n\)</span> curves with
+replacement.</li>
+<li>Compute the mean function for each resample.</li>
+<li>For each wavelength, compute the quantiles of the bootstrapped
+means.</li>
+</ol>
+<pre class="r"><code>BootstrapPointwiseCI &lt;- function(data, level = 0.95) {
+  n = nrow(data)
+  m = ncol(data)
+  B = 1000 # Bootstrap sample size
+  
+  boot_means = array(NA, c(B, m))
+  for (b in 1:B) {
+    idx = sample(1:n, n, replace = TRUE)
+    boot_means[b, ] = colMeans(data[idx, ])
+  }
+  
+  wavelength = as.numeric(colnames(data))
+  lower = apply(boot_means, 2, quantile, probs = (1-level)/2)
+  upper = apply(boot_means, 2, quantile, probs = level + (1-level)/2)
+  mean_curve = colMeans(data)
+  return(data.frame(wavelength=wavelength, lower=lower, upper=upper, mean=mean_curve))
+}
+
+# Calculate lower, upper bounds and mean values
+issa_ci_ca_boot = BootstrapPointwiseCI(issa_spectrum_ca, level = 0.95)
+issa_ci_cn_boot = BootstrapPointwiseCI(issa_spectrum_cn, level = 0.95)
+issa_ci_af_boot = BootstrapPointwiseCI(issa_spectrum_af, level = 0.95)
+
+plot_ci_ca_boot = PlotPointwiseCI(issa_ci_ca_boot, title = &quot;Bootstrap Pointwise Confidence Intervals&quot;)
+plot_ci_cn_boot = PlotPointwiseCI(issa_ci_cn_boot, title = &quot;Bootstrap Pointwise Confidence Intervals&quot;)
+plot_ci_af_boot = PlotPointwiseCI(issa_ci_af_boot, title = &quot;Bootstrap Pointwise Confidence Intervals&quot;)
+print(((plot_ci_ca | plot_ci_ca_boot) / (plot_ci_cn | plot_ci_cn_boot) / (plot_ci_af | plot_ci_af_boot)))</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/issa-spectrum.Rmd/ci_bootstrap-1.png" alt="Bootstrap pointwise confidence intervals for the mean function" width="100%" />
+<p class="caption">
+Bootstrap pointwise confidence intervals for the mean function
+</p>
+</div>
+</div>
+<div id="functional-pca-based-confidence-intervals"
+class="section level2" number="3.3">
+<h2><span class="header-section-number">3.3</span> Functional PCA based
+confidence intervals</h2>
+<p>Functional Principal Component Analysis is a classical statistical
+method for functional data analysis. Using this method, a random
+function is represented in the eigenbasis, which is an orthonormal basis
+of the Hilbert space that consists of the eigenfunctions of the
+autocovariance operator.</p>
+<p>For a squared-integrable stochastic process <span
+class="math inline">\(\{X_t,~t\in T\}\)</span>, let <span
+class="math display">\[\mu_t = \mathbb{E}X_t,\]</span> and <span
+class="math display">\[G(s,t)=\mathbb{E}[(X_s-\mu_s)(X_t-\mu_t)]=\sum_{k=1}^\infty
+\lambda_k \varphi_k(s)\varphi_k(t),\]</span> where <span
+class="math inline">\(\lambda_1\geq\lambda_2 \geq \cdots \geq 0\)</span>
+are the eigenvalues and <span
+class="math inline">\(\varphi_1,\varphi_2,\ldots\)</span> are the
+eigenfunctions of a linear Hilbert–Schmidt operator. By the
+Karhunen–Loève theorem, one can express the centered process in the
+eigenbasis, <span class="math display">\[X_t = \mu_t + \sum_{k=1}^\infty
+\xi_k \varphi_k(t),\]</span> where <span
+class="math inline">\(\xi_k\)</span> is endowed with the properties
+<span class="math display">\[\mathbb{E}\xi_k = 0, \quad
+\text{Var}(\xi_k)=\lambda_k,\quad \mathbb{E}\xi_k\xi_l = 0,~k\neq
+l.\]</span></p>
+<pre class="r"><code># X: n x m matrix of curves (rows = curves, cols = grid points)
+FPCAPointwiseCI &lt;- function(X,
+                            level = 0.95, ev_thresh = 0.99, K = NULL) {
+  stopifnot(is.matrix(X))
+  n &lt;- nrow(X); m &lt;- ncol(X)
+  alpha &lt;- 1 - level
+
+  # 1) Estimate mean curve
+  mu_hat &lt;- colMeans(X)
+
+  # 2) Centered data and covariance across t
+  Xc &lt;- sweep(X, 2, mu_hat, &quot;-&quot;)
+  C_hat &lt;- crossprod(Xc) / (n - 1)   # m x m
+
+  # 3) FPCA
+  eig &lt;- eigen(C_hat, symmetric = TRUE)
+  lam &lt;- pmax(eig$values, 0)
+  Phi &lt;- eig$vectors               # columns are eigenfunctions on the grid
+
+  # choose K
+  if (is.null(K)) {
+    cumvar &lt;- cumsum(lam) / sum(lam)
+    K &lt;- which(cumvar &gt;= ev_thresh)[1]
+  }
+  lamK &lt;- lam[1:K]; PhiK &lt;- Phi[, 1:K, drop = FALSE]
+
+  # 4) Pointwise SE for mean via diag(C)/n
+  var_mu &lt;- colSums( t(PhiK^2) * lamK )  # diag approx: sum_k lam_k * phi_k(t)^2 / n
+  se_mu  &lt;- sqrt(var_mu)
+
+  # 5) Pointwise band
+  z &lt;- qnorm(1 - alpha/2)
+  lower_pt &lt;- mu_hat - z * se_mu
+  upper_pt &lt;- mu_hat + z * se_mu
+
+  wavelength = as.numeric(colnames(X))
+  
+  list(
+    wavelength = wavelength,
+    mean = mu_hat,
+    se = se_mu,
+    lower = lower_pt,
+    upper = upper_pt,
+    lambda = lamK,
+    phi = PhiK,
+    K = K,
+    ev_explained = sum(lamK) / sum(lam)
+  )
+}
+
+# Calculate lower, upper bounds and mean values
+issa_ci_ca_fpca_full = FPCAPointwiseCI(issa_spectrum_ca, level = 0.95)
+issa_ci_ca_fpca = data.frame(wavelength = issa_ci_ca_fpca_full$wavelength,
+                             lower = issa_ci_ca_fpca_full$lower,
+                             upper = issa_ci_ca_fpca_full$upper,
+                             mean = issa_ci_ca_fpca_full$mean)
+issa_ci_cn_fpca_full = FPCAPointwiseCI(issa_spectrum_cn, level = 0.95)
+issa_ci_cn_fpca = data.frame(wavelength = issa_ci_cn_fpca_full$wavelength,
+                             lower = issa_ci_cn_fpca_full$lower,
+                             upper = issa_ci_cn_fpca_full$upper,
+                             mean = issa_ci_cn_fpca_full$mean)
+issa_ci_af_fpca_full = FPCAPointwiseCI(issa_spectrum_af, level = 0.95)
+issa_ci_af_fpca = data.frame(wavelength = issa_ci_af_fpca_full$wavelength,
+                             lower = issa_ci_af_fpca_full$lower,
+                             upper = issa_ci_af_fpca_full$upper,
+                             mean = issa_ci_af_fpca_full$mean)
+
+plot_ci_ca_fpca = PlotPointwiseCI(issa_ci_ca_fpca, title = &quot;FPCA-based Pointwise Confidence Intervals&quot;)
+plot_ci_cn_fpca = PlotPointwiseCI(issa_ci_cn_fpca, title = &quot;FPCA-based Pointwise Confidence Intervals&quot;)
+plot_ci_af_fpca = PlotPointwiseCI(issa_ci_af_fpca, title = &quot;FPCA-based Pointwise Confidence Intervals&quot;)
+
+print(((plot_ca | plot_ci_ca_fpca) / (plot_cn | plot_ci_cn_fpca) / (plot_af | plot_ci_af_fpca)))</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/issa-spectrum.Rmd/ci_fpca-1.png" alt="Naive pointwise confidence intervals for forehead reflectance spectra" width="100%" />
+<p class="caption">
+Naive pointwise confidence intervals for forehead reflectance spectra
+</p>
+</div>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre><code>R version 4.4.2 (2024-10-31 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 10 x64 (build 19045)
+
+Matrix products: default
+
+
+locale:
+[1] LC_COLLATE=Chinese (Simplified)_China.utf8 
+[2] LC_CTYPE=Chinese (Simplified)_China.utf8   
+[3] LC_MONETARY=Chinese (Simplified)_China.utf8
+[4] LC_NUMERIC=C                               
+[5] LC_TIME=Chinese (Simplified)_China.utf8    
+
+time zone: America/New_York
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] openxlsx_4.2.8   gridExtra_2.3    paletteer_1.6.0  ggmulti_1.0.7   
+ [5] ggridges_0.5.6   ggbeeswarm_0.7.2 patchwork_1.3.0  scales_1.3.0    
+ [9] knitr_1.49       lubridate_1.9.4  forcats_1.0.0    stringr_1.5.1   
+[13] dplyr_1.1.4      purrr_1.0.2      readr_2.1.5      tidyr_1.3.1     
+[17] tibble_3.2.1     ggplot2_3.5.1    tidyverse_2.0.0 
+
+loaded via a namespace (and not attached):
+ [1] sass_0.4.9        utf8_1.2.4        generics_0.1.3    stringi_1.8.4    
+ [5] hms_1.1.3         digest_0.6.37     magrittr_2.0.3    timechange_0.3.0 
+ [9] evaluate_1.0.1    grid_4.4.2        fastmap_1.2.0     rprojroot_2.0.4  
+[13] workflowr_1.7.1   jsonlite_1.8.9    zip_2.3.1         rematch2_2.1.2   
+[17] promises_1.3.2    fansi_1.0.6       jquerylib_0.1.4   cli_3.6.3        
+[21] rlang_1.1.4       munsell_0.5.1     withr_3.0.2       cachem_1.1.0     
+[25] yaml_2.3.10       tools_4.4.2       tzdb_0.4.0        colorspace_2.1-1 
+[29] httpuv_1.6.15     vctrs_0.6.5       R6_2.5.1          lifecycle_1.0.4  
+[33] git2r_0.35.0      fs_1.6.5          vipor_0.4.7       beeswarm_0.4.0   
+[37] pkgconfig_2.0.3   pillar_1.9.0      bslib_0.8.0       later_1.4.1      
+[41] gtable_0.3.6      glue_1.8.0        Rcpp_1.0.13-1     xfun_0.49        
+[45] tidyselect_1.2.1  rstudioapi_0.17.1 farver_2.1.2      htmltools_0.5.8.1
+[49] labeling_0.4.3    rmarkdown_2.29    compiler_4.4.2   </code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

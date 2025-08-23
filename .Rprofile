@@ -6,3 +6,6 @@ if (requireNamespace("workflowr", quietly = TRUE)) {
 } else {
   message("workflowr package not installed, please run install.packages(\"workflowr\") to use the workflowr functions")
 }
+
+# Force English for workflowr builds
+try(Sys.setlocale("LC_TIME", "C"), silent = TRUE)
