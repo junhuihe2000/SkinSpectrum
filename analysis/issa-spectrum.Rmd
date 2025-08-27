@@ -24,6 +24,7 @@ library(stringr)
 
 library(gridExtra)
 library(openxlsx)
+library(fda.usc)
 
 # Set up the project root directory
 F = rprojroot::is_rstudio_project$make_fix_file()
@@ -221,9 +222,11 @@ For compactness, we restrict our analysis to three ethnic groups---Caucasian, Ch
 ```{r ci_data, echo=TRUE}
 # Extract the reflectance spectra of Caucasians, Chinese, and Africans at forehead
 location = "6"
-issa_spectrum_ca <- as.matrix(issa_spectrum %>% filter(D == "CA", G == location) %>% select("400":"700"))
-issa_spectrum_cn <- as.matrix(issa_spectrum %>% filter(D == "CN", G == location) %>% select("400":"700"))
-issa_spectrum_af <- as.matrix(issa_spectrum %>% filter(D == "AF", G == location) %>% select("400":"700"))
+issa_spectrum_ca <- as.matrix(issa_spectrum %>% filter(D == "CA", G == location) %>% dplyr::select("400":"700"))
+issa_spectrum_cn <- as.matrix(issa_spectrum %>% filter(D == "CN", G == location) %>% dplyr::select("400":"700"))
+issa_spectrum_af <- as.matrix(issa_spectrum %>% filter(D == "AF", G == location) %>% dplyr::select("400":"700"))
+
+wavelength = as.numeric(colnames(issa_spectrum_ca))
 ```
 
 ## Naive Pointwise Confidence Intervals
@@ -244,6 +247,7 @@ PlotPointwiseCI <- function(df_ci, title) {
     geom_ribbon(aes(ymin = lower, ymax = upper), fill = "#fbf7ec") +
     geom_line(aes(y = mean), color = "#a15c33", linewidth = 1) +
     expand_limits(y = 0) +
+    ylim(0, 70) + 
     theme_classic() +
     labs(
       x = "Wavelength (nm)",
@@ -335,7 +339,7 @@ FPCAPointwiseCI <- function(X,
   # 1) Estimate mean curve
   mu_hat <- colMeans(X)
 
-  # 2) Centered data and covariance across t
+  # 2) Centered data and covariance across grid points
   Xc <- sweep(X, 2, mu_hat, "-")
   C_hat <- crossprod(Xc) / (n - 1)   # m x m
 
@@ -392,13 +396,188 @@ issa_ci_af_fpca = data.frame(wavelength = issa_ci_af_fpca_full$wavelength,
                              upper = issa_ci_af_fpca_full$upper,
                              mean = issa_ci_af_fpca_full$mean)
 
-plot_ci_ca_fpca = PlotPointwiseCI(issa_ci_ca_fpca, title = "FPCA-based Pointwise Confidence Intervals")
-plot_ci_cn_fpca = PlotPointwiseCI(issa_ci_cn_fpca, title = "FPCA-based Pointwise Confidence Intervals")
-plot_ci_af_fpca = PlotPointwiseCI(issa_ci_af_fpca, title = "FPCA-based Pointwise Confidence Intervals")
+plot_ci_ca_fpca = PlotPointwiseCI(issa_ci_ca_fpca, title = "FPCA-based Pointwise CIs")
+plot_ci_cn_fpca = PlotPointwiseCI(issa_ci_cn_fpca, title = "FPCA-based Pointwise CIs")
+plot_ci_af_fpca = PlotPointwiseCI(issa_ci_af_fpca, title = "FPCA-based Pointwise CIs")
 
 print(((plot_ca | plot_ci_ca_fpca) / (plot_cn | plot_ci_cn_fpca) / (plot_af | plot_ci_af_fpca)))
 ```
 
 
+# Functional depth based criterion
 
+**Functional depth** is a center-outward score to rank curves from "central" to "outlying". The depth of a curve is high if it stays with the bulk of the sample across grid points, and low if it wanders to extremes. 
+
+There are many different types of functional depth. Let us consider three common depth notions---**Fraiman–Muniz (FM) depth**, **Modified Band Depth (MBD)** and **Projection-type depth**. Consider a functional data set consists of $n$ curves evaluated on grid points $t\in T$, denoted as $\{x_i(t),~t\in T\}_{1\leq i \leq n}$.
+
++ **Fraiman–Muniz (FM) depth**: At each time $t$, compute the empirical CDF $F_t$ of the sample values $\{x_i(t)\}_{1\leq i \leq n}$. Define a univariate depth at time $t$: $d_t(u) = 1 - |1 - 2 F_t(u)|$ (it peaks at the median). Then integrate over time:
+$$D_{FM}(x) = \int_T d_t(x(t)) dt.$$
+**Remark:** The FM depth captures how often the curve $x(t)$ sits near the pointwise median.
+
++ **Modified Band Depth (MBD)**: For each pair of sample curves $(i,j)$, form the band between them, and check the portion of time $x(t)$ stays inside the band. Average over all pairs:
+$$MBD(x)=\frac{2}{n(n-1)} \sum_{i< j} \frac{\lambda(\{t:~\min(x_i(t),x_j(t))\leq x(t) \leq \max(x_i(t),x_j(t)})}{\lambda(T)}.$$
+With Ranks $R_j$ of $x(t_j)$ among $\{x_i(t_j)\}_{1\leq i \leq n}$, a handy grid formula is
+$$MBD(x) = \frac{1}{p} \sum_{j=1}^p \frac{(R_j-1)(n-R_j)}{\binom{n}{2}}.$$
+**Remark:** MBD captures how much of the time the curve lies within typical envelopes.
+
++ **Projection-type depth**: Project curves onto many directions $a_k(t)$ (e.g., random or PCA), compute a depth on projections $<x,a_k>$, then aggregate.
+
+**Remark:** The projection depth captures the global structure and is geometry-friendly.
+
+## Depth-based central band
+
+1. Compute a functional depth (Fraiman–Muniz depth is stable and fast).
+
+2. Keep the deepest $(1-\alpha)n$ curves.
+
+3. The band is the pointwise min/max over those selected curves.
+
+4. A new curve is “inside” if it stays within the band over (nearly) all grid points.
+
+```{r FM_depth_central_band, fig.cap="Depth-based pointwise central bands for forehead reflectance spectra", fig.height=10, echo=TRUE}
+# Build a Fraiman–Muniz depth-based central band
+# X: matrix (n_curves x p_grid), rows = curves, cols = grid points
+# level: coverage level (e.g., 0.95 for 95% central band)
+build_depth_central_band <- function(X, t, level = 0.95) {
+  stopifnot(is.matrix(X))
+  n <- nrow(X)
+  fd <- fdata(mdata = X, argvals = t)
+  depths <- depth.FM(fd)$dep   # Fraiman–Muniz depths (higher = more central)
+  k <- ceiling(level * n)
+  keep_idx <- order(depths, decreasing = TRUE)[seq_len(k)]
+  # Pointwise envelope of the k deepest curves
+  L <- apply(X[keep_idx, , drop = FALSE], 2, min)
+  U <- apply(X[keep_idx, , drop = FALSE], 2, max)
+  list(wavelength=t, lower = L, upper = U, median = X[keep_idx[1], ], depths = depths, keep_idx = keep_idx)
+}
+
+issa_depth_ca_full = build_depth_central_band(issa_spectrum_ca, wavelength, level = 0.95)
+issa_depth_ca = data.frame(wavelength = issa_depth_ca_full$wavelength,
+                             lower = issa_depth_ca_full$lower,
+                             upper = issa_depth_ca_full$upper,
+                             mean = issa_depth_ca_full$median)
+
+issa_depth_cn_full = build_depth_central_band(issa_spectrum_cn, wavelength, level = 0.95)
+issa_depth_cn = data.frame(wavelength = issa_depth_cn_full$wavelength,
+                             lower = issa_depth_cn_full$lower,
+                             upper = issa_depth_cn_full$upper,
+                             mean = issa_depth_cn_full$median)
+
+issa_depth_af_full = build_depth_central_band(issa_spectrum_af, wavelength, level = 0.95)
+issa_depth_af = data.frame(wavelength = issa_depth_af_full$wavelength,
+                             lower = issa_depth_af_full$lower,
+                             upper = issa_depth_af_full$upper,
+                             mean = issa_depth_af_full$median)
+
+plot_depth_ca = PlotPointwiseCI(issa_depth_ca, title = "Depth-based Central Band")
+plot_depth_cn = PlotPointwiseCI(issa_depth_cn, title = "Depth-based Central Band")
+plot_depth_af = PlotPointwiseCI(issa_depth_af, title = "Depth-based Central Band")
+
+print(((plot_ca | plot_depth_ca) / (plot_cn | plot_depth_cn) / (plot_af | plot_depth_af)))
+```
+
+## One-class membership score via depth
+
+1. Compute the depth of each training curve.
+
+2. Set the depth cutoff at the $\alpha$-quantile of training depths.
+
+3. Compute the depth of the new curve relative to the training set.
+
+4. Classify as “in” if its depth ≥ cutoff.
+
+```{r depth_classifier, echo=TRUE}
+# Fraction of grid points where y lies inside [L, U]
+inclusion_score <- function(y, L, U, tol_eps = 0) {
+  stopifnot(length(y) == length(L), length(L) == length(U))
+  mean((y >= (L - tol_eps)) & (y <= (U + tol_eps)))
+}
+
+# One-curve Modified Band Depth (MBD) of y relative to X
+# Fast rank-based formula (Lopez-Pintado & Romo, 2009)
+# X: n x p, y: length p
+mbd_new <- function(X, y) {
+  stopifnot(is.matrix(X), length(y) == ncol(X))
+  n <- nrow(X); p <- ncol(X)
+  # Rank of y among sample values at each grid point
+  # ties are averaged; that’s okay for MBD in practice
+  R <- vapply(seq_len(p), function(j) {
+    xj <- X[, j]
+    sum(xj < y[j]) + 1 + 0.5 * sum(xj == y[j]) - 0.5  # mid-rank without calling rank()
+  }, numeric(1))
+  # MBD formula: average over grid of [ (R-1)*(n-R) ] / choose(n, 2)
+  mean(((R - 1) * (n - R)) / (n * (n - 1) / 2))
+}
+
+# Classify new curve combining band inclusion and depth threshold
+# Returns a list with decisions and scores
+classify_curve <- function(y_new, X, t, level = 0.95, band_tol_prop = 0.95, tol_eps = 0) {
+  # Build band
+  band <- build_depth_central_band(X, t, level)
+  s_incl <- inclusion_score(y_new, band$lower, band$upper, tol_eps = tol_eps)
+  in_band <- (s_incl >= band_tol_prop)
+
+  # Depth threshold (use Fraiman–Muniz on training; MBD for the new curve)
+  # FM depth for training:
+  depths_train <- band$depths
+  depth_cutoff <- quantile(depths_train, probs = 1-level, type = 8)
+
+  # MBD for the new curve relative to X (stable and fast)
+  mbd_y <- mbd_new(X, y_new)
+
+  # For comparability, also compute FM depth of y_new by augmenting and extracting.
+  fd_all <- fdata(mdata = rbind(X, y_new), argvals = t)
+  fm_all <- depth.FM(fd_all)$dep
+  fm_y <- tail(fm_all, 1)
+
+  in_depth <- (fm_y >= depth_cutoff) # primary depth rule using FM
+
+  list(
+    band = band,
+    inclusion_score = s_incl,
+    in_band = in_band,
+    fm_depth_new = fm_y,
+    fm_depth_cutoff = as.numeric(depth_cutoff),
+    in_depth = in_depth,
+    mbd_new = mbd_y,
+    decision = (in_band && in_depth)
+  )
+}
+```
+
+We examine the performance of this decision rule on three simulated curves. The training set is ISSA Caucasian skin reflectance spectra at forehead.
+
+```{r depth_classifier_example, fig.cap="Depth-based pointwise central bands for forehead reflectance spectra", fig.height=5}
+# construct simulated spectra curves
+y_1 = issa_depth_ca$mean
+y_2 = issa_depth_af$mean
+y_3 = sapply(wavelength, function(t) {ifelse(t<550, -(t-400)/15+20, 5*(t-550)/15+10)})
+
+df_classifier = data.frame(wavelength=wavelength, y_1=y_1, y_2=y_2, y_3=y_3) %>% pivot_longer(cols=c(y_1,y_2,y_3),names_to = "group", values_to = "values")
+
+plot_sim = ggplot(df_classifier, aes(x = wavelength, y=values, color=group)) +
+    geom_line(linewidth = 1) +
+    expand_limits(y = 0) +
+    ylim(0, 70) + 
+    theme_classic() +
+    labs(
+      x = "Wavelength (nm)",
+      y = "Percent Reflectance of Skin"
+    ) +
+    labs(
+      title = "Simulated skin spetra curves",
+      color = "Curves"
+    )
+print((plot_ca|plot_sim))
+
+# Decision & scores
+res_1 = classify_curve(y_1, issa_spectrum_ca, wavelength)
+res_2 = classify_curve(y_2, issa_spectrum_ca, wavelength)
+res_3 = classify_curve(y_3, issa_spectrum_ca, wavelength)
+
+cat("Decision (band & depth):\n",
+    "y_1:", ifelse(res_1$decision, "BELONGS", "DOES NOT BELONG"), "\n",
+    "y_2:", ifelse(res_2$decision, "BELONGS", "DOES NOT BELONG"), "\n",
+    "y_3:", ifelse(res_3$decision, "BELONGS", "DOES NOT BELONG"), "\n")
+```
 
