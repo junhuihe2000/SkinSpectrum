@@ -1,0 +1,520 @@
+---
+title: "Functional depth analysis for ISSA"
+author: "Junhui He"
+date: "`r Sys.Date()`"
+output:
+  workflowr::wflow_html:
+    toc: yes
+    number_sections: yes
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+# Load required libraries
+library(tidyverse)
+library(knitr)
+library(scales)
+library(patchwork)
+library(ggbeeswarm)
+library(ggridges)
+library(ggmulti)
+library(paletteer)
+library(stringr)
+
+library(gridExtra)
+library(openxlsx)
+library(fda.usc)
+library(fda)
+library(MASS)
+library(ddalpha)
+
+# Set global chunk options for the document
+knitr::opts_chunk$set(
+  echo = FALSE,        # Don't show code in output
+  include = TRUE,      # Include output
+  eval = TRUE,         # Evaluate code chunks
+  warning = FALSE,     # Don't show warnings
+  message = FALSE,     # Don't show messages
+  fig.retina = 2,      # Higher resolution figures
+  fig.width = 8,       # Default figure width
+  fig.height = 6,      # Default figure height
+  out.width = "100%"   # Full width in HTML output
+)
+```
+
+# Introduction to the ISSA Dataset
+
+The International Skin Spectra Archive (ISSA) offers a detailed collection of spectral and colorimetric data for human skin, encompassing 15,256 records from 2,113 subjects. This data spans from 2012 to 2024 and originates from eleven datasets curated by international laboratories across eight countries: the UK, Spain, China, Japan, Pakistan, Thailand, Iraq, and Saudi Arabia. Each dataset follows a standardised measurement protocol to maintain data consistency.
+
+In the ISSA dataset, individual records provide extensive details including record number, data origin, subject identification, and skin type—categorised by ethnicity, gender, age, and body location. The dataset also includes detailed information on the measurement instruments used, such as type, specular component inclusion, wavelength range and interval.
+
+Alongside spectral data, each sample also contains CIE colorimetric data, including tristimulus values, xy chromaticity coordinates, CIELAB parameters, etc., based on the CIE 1931 standard colorimetric observer and the CIE standard illuminant D65.
+
+## Data Records
+
+The datasheet arranges data across columns labelled A to BQ:
+
+-   A: Unique record identifier
+-   B: Data origin
+-   C: Subject number
+-   D to G: Ethnicity, gender, age group, and body location
+-   H to L: Instrument details including type and spectral measurement specifics
+-   N to BD: Spectral data from 360 nm to 780 nm
+-   BF to BQ: CIE colorimetric data
+
+## Skin Type
+
+-   **Ethnicity**: CA (Caucasian), CN (Chinese), SA (South Asian), AF (African), IQ (Iraqi), TH (Thai), JP (Japanese), AB (Arabian)
+-   **Gender**: F (Female), M (Male)
+-   **Body Location**: 1 (Back of Hand), 2 (Cheek), 3 (Cheek bone), 4 (Chin), 5 (Ear Lobe), 6 (Forehead), 7 (Inner arm), 8 (Neck), 9 (Nose tip), 10 (Outer arm), 11 (Palm), 12 (Ring finger)
+
+```{r load_issa}
+# Load the ISSA skin spectrum reflectance data
+issa_path <- "G:/Phd/Colloborator/Tina Lasisi/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
+issa_code <- read.xlsx(issa_path, sheet = 1)
+issa_data <- read.xlsx(issa_path, sheet = 2)
+
+# Extract the skin spectrum data
+issa <- issa_data[10:nrow(issa_data), ] # 360 nm: 13rd column, 780 nm: 55th column
+colnames(issa) <- issa_data[9, ]
+```
+
+# Visualize skin reflectance spectrum curves
+
+In this analysis, we aim to explore the relationship of skin reflectance among various body locations. For simplicity, here we take Chinese and Africans as the study subjects. The Chinese and African skin reflectance curves in different body locations are shown as followings:
+
+```{r util_functions}
+# ==============================================================================
+# DATA PROCESSING FUNCTIONS
+# ==============================================================================
+
+#' Calculate melanin index and prepare data for plotting
+#' 
+#' This function:
+#' 1. Calculates the melanin index (CMI) using wavelengths 640-670nm
+#' 2. Filters data to reasonable CMI range (20-130)
+#' 3. Samples data to prevent plot overload
+#' 4. Converts to long format for ggplot
+#' 
+#' @param data Processed spectral data frame
+#' @param sample_size Number of spectra to sample (default 400)
+#' @return Long-format data frame with id, wavelength, reflectance, and cmi
+calculateMIndex <- function(data) {
+  # Calculate melanin index using the formula from the literature
+  # This uses the red region of the spectrum (640-670nm)
+  data_processed <- data %>% 
+    mutate(
+      # Average reflectance in the red region
+      eqn1 = ((`650` + `660` + (0.5 * `640`) + (0.5 * `660`)) / 3) / 100,
+      # Convert to melanin index
+      cmi = 100 * log10(1 / eqn1)
+    )
+  
+  # Prepare data for plotting
+  data_long <- data_processed %>%
+    #mutate(id = row_number()) %>%
+    # Filter to reasonable melanin index range
+    # filter(cmi >= 20 & cmi <= 130) %>% 
+    # Sample to prevent plot overload
+    # slice_sample(n = sample_size) %>% 
+    # Convert to long format
+    pivot_longer(cols = matches("^[0-9]+$"), 
+                 names_to = "wavelength", 
+                 values_to = "reflectance") %>% 
+    # Extract numeric wavelength values
+    mutate(wavelength = as.numeric(str_remove(wavelength, "\\D+"))) %>% 
+    # Focus on visible spectrum
+    filter(wavelength >= 400 & wavelength <= 700) # %>%
+    # select(id, everything())
+  
+  return(data_long)
+}
+
+# ==============================================================================
+# PLOTTING FUNCTIONS
+# ==============================================================================
+
+#' Generate skin spectra plot
+#' 
+#' Creates a plot showing reflectance spectra colored by melanin index
+#' 
+#' @param data Long-format data with wavelength, reflectance and cmi
+#' @return A ggplot object
+PlotSkinSpectra <- function(data) {
+  plot <- ggplot(data, aes(x = wavelength, y = reflectance, group = A,
+                          color = cmi)) +
+    geom_line(alpha = 0.6) +  # Add transparency to handle overlapping lines
+    # Color gradient from dark to light skin
+    scale_color_gradientn(
+      colours = c("#42230c", "#a15c33", "#fbf7ec"),
+      values = rescale(x = c(50, 40, 20)),
+      oob = squish,
+      limits = c(20, 130)
+    ) +
+    expand_limits(y = 0) +
+    theme_classic() +
+    labs(
+      x = "Wavelength (nm)",
+      y = "Percent Reflectance of Skin",
+      color = "Melanin Index"
+    ) +
+    guides(color = guide_colorbar(reverse = TRUE)) +
+    # Highlight the region used for melanin index calculation
+    annotate("rect", xmin = 640, xmax = 670, ymin = 0, ymax = 70,
+             alpha = 0.3, fill = "#ff0000")
+  
+  return(plot)
+}
+
+#' Wrapper function to process file and generate plot
+#' 
+#' @param file_name Path to the CSV file
+#' @return A ggplot object
+PlotSkinSpectraWrapper <- function(data) {
+  
+  # Calculate melanin index
+  data_with_mindex <- calculateMIndex(data)
+  
+  # Generate the plot
+  plot <- PlotSkinSpectra(data_with_mindex)
+  
+  return(plot)
+}
+```
+
+## Chinese skin reflectance
+
+```{r issa_cn_plot, fig.height=12}
+issa_cn = issa %>% filter(D == "CN")
+bodys = unique(issa_cn$G)
+body_names = c("Back of Hand", "Cheek", "Cheek bone", "Chin", "Ear Lobe", "Forehead", "Inner arm", "Neck", "Nose tip", "Outer arm", "Palm", "Ring finger")
+
+plots_body_list = list()
+for (iloc in bodys) {
+  issa_cn_body = issa_cn %>% filter(G == iloc)
+  plot_cn_body = PlotSkinSpectraWrapper(issa_cn_body) + labs(title = body_names[as.numeric(iloc)])
+  plots_body_list[[iloc]] = plot_cn_body
+}
+
+wrap_plots(plots_body_list, ncol = 3, guides = "collect") + plot_annotation(title = "ISSA Chinese skin reflectance curves", subtitle = "vary among body locations") & theme(
+    legend.position = "bottom")
+```
+
+## African skin reflectance
+
+```{r issa_af_plot, fig.height=12}
+issa_af = issa %>% filter(D == "AF")
+bodys = unique(issa_af$G)
+body_names = c("Back of Hand", "Cheek", "Cheek bone", "Chin", "Ear Lobe", "Forehead", "Inner arm", "Neck", "Nose tip", "Outer arm", "Palm", "Ring finger")
+
+plots_body_list = list()
+for (iloc in bodys) {
+  issa_af_body = issa_af %>% filter(G == iloc)
+  plot_af_body = PlotSkinSpectraWrapper(issa_af_body) + labs(title = body_names[as.numeric(iloc)])
+  plots_body_list[[iloc]] = plot_af_body
+}
+
+wrap_plots(plots_body_list, ncol = 3, guides = "collect") + plot_annotation(title = "ISSA African skin reflectance curves", subtitle = "vary among body locations") & theme(
+    legend.position = "bottom")
+```
+
+## Select ethnicity and body location
+
+According to the reflectance plots above, the skin reflectance curves at many body locations looks very similar, and some locations contain only a few, or even no, curves. To enable meaningful comparisons, we focus on the following samples, with their sizes given in parentheses:
+
+-   Chinese forehead (370), Chinese palm (201);
+
+-   African forehead (143), African palm (65).
+
+The corresponding reflectance curves are shown below:
+
+```{r issa_plot, fig.height=8}
+issa_cn_forehead = issa_cn %>% filter(G == "6")
+issa_cn_palm = issa_cn %>% filter(G == "11")
+issa_af_forehead = issa_af %>% filter(G == "6")
+issa_af_palm = issa_af %>% filter(G == "11")
+
+issa_list = list(issa_cn_forehead, issa_cn_palm, issa_af_forehead, issa_af_palm)
+titles = c("Chinese forehead", "Chinese palm", "African forehead", "African palm")
+plots_list = list()
+for (i in seq_along(issa_list)) {
+  issa_data_select = issa_list[[i]]
+  plot_select = PlotSkinSpectraWrapper(issa_data_select) + labs(title = titles[i])
+  plots_list[[i]] = plot_select
+}
+
+wrap_plots(plots_list, ncol = 2, guides = "collect") + plot_annotation(title = "ISSA Chinese and African skin reflectance curves", subtitle = "at forehead and palm") & theme(
+    legend.position = "bottom")
+```
+
+# Functional depth based criterion
+
+**Functional depth** is a center-outward score to rank curves from "central" to "outlying". The depth of a curve is high if it stays with the bulk of the sample across grid points, and low if it wanders to extremes.
+
+There are many different types of functional depth. Let us consider three common depth notions---**Fraiman–Muniz (FM) depth**, and **Projection-type depth**. Consider a functional data set consists of $n$ curves evaluated on grid points $t\in T$, denoted as $\{x_i(t),~t\in T\}_{1\leq i \leq n}$.
+
+-   **Fraiman–Muniz (FM) depth**: At each time $t$, compute the empirical CDF $F_t$ of the sample values $\{x_i(t)\}_{1\leq i \leq n}$. Define a univariate depth at time $t$: $d_t(u) = 1 - |1 - 2 F_t(u)|$ (it peaks at the median). Then integrate over time: $$D_{FM}(x) = \int_T d_t(x(t)) dt.$$ **Remark:** The FM depth captures how often the curve $x(t)$ sits near the pointwise median.
+
+```{=html}
+<!--
++ **Modified Band Depth (MBD)**: For each pair of sample curves $(i,j)$, form the band between them, and check the portion of time $x(t)$ stays inside the band. Average over all pairs:
+$$MBD(x)=\frac{2}{n(n-1)} \sum_{i< j} \frac{\lambda(\{t:~\min(x_i(t),x_j(t))\leq x(t) \leq \max(x_i(t),x_j(t))\})}{\lambda(T)}.$$
+With Ranks $R_j$ of $x(t_j)$ among $\{x_i(t_j)\}_{1\leq i \leq n}$, a handy grid formula is
+$$MBD(x) = \frac{1}{p} \sum_{j=1}^p \frac{(R_j-1)(n-R_j)}{\binom{n}{2}}.$$
+**Remark:** MBD captures how much of the time the curve lies within typical envelopes.
+-->
+```
+-   **Projection-type depth**: Project curves onto many directions $a_k(t)$ (e.g., random or PCA), compute a depth on projections $<x,a_k>$, then aggregate. 
+**Remark:** The projection depth captures the global structure and is geometry-friendly. We focus on the **FPCA-based depth** in this analysis.
+
+We compute the functional depth of the skin reflectance curves and rank them according to their depth. Curves with higher depth values are considered central, while those with lower depth values are regarded as extreme. We then present the 10 curves with the highest depth and the 10 curves with the lowest depth, respectively.
+
+## Fraiman-Muniz depth
+
+```{r FM_depth, fig.height=8}
+SelectFMDepth <- function(data, k1=10, k2=10) {
+  n = nrow(data)
+  t = seq(400, 700, 10)
+  fd = fdata(mdata = data %>% dplyr::select("400":"700"), argvals = t)
+  depths = depth.FM(fd)$dep
+  high_idx = order(depths, decreasing = TRUE)[1:k1]
+  low_idx = order(depths, decreasing = FALSE)[1:k2]
+  
+  data_processed = data[c(high_idx, low_idx), ]
+  data_processed$depth = c(rep("Central", k1), rep("Extreme", k2))
+  
+  return(data_processed)
+}
+
+PlotFMDepth <- function(data, k1=10, k2=10) {
+  data_processed = SelectFMDepth(data, k1, k2)
+  data_long = calculateMIndex(data_processed)
+  
+  plot <- ggplot(data_long, aes(x = wavelength, y = reflectance, 
+                           group = A, color = cmi, linetype = depth)) +
+    geom_line() +  # Add transparency to handle overlapping lines
+    # Color gradient from dark to light skin
+    scale_color_gradientn(
+      colours = c("#42230c", "#a15c33", "#fbf7ec"),
+      values = rescale(x = c(50, 40, 20)),
+      oob = squish,
+      limits = c(20, 130)
+    ) +
+    expand_limits(y = 0) +
+    theme_classic() +
+    labs(
+      x = "Wavelength (nm)",
+      y = "Percent Reflectance of Skin",
+      color = "Melanin Index",
+      linetype = "Functional depth"
+    ) +
+    guides(color = guide_colorbar(reverse = TRUE)) +
+    # Highlight the region used for melanin index calculation
+    annotate("rect", xmin = 640, xmax = 670, ymin = 0, ymax = 70,
+             alpha = 0.3, fill = "#ff0000")
+
+  return(plot)
+}
+
+plots_list = list()
+for (i in seq_along(issa_list)) {
+  issa_data_select = issa_list[[i]]
+  plot_select = PlotFMDepth(issa_data_select) + labs(title = titles[i])
+  plots_list[[i]] = plot_select
+}
+
+wrap_plots(plots_list, ncol = 2, guides = "collect") + plot_annotation(title = "Fraiman-Muniz depth quantile curves") & theme(
+    legend.position = "bottom")
+
+```
+
+
+## FPCA depth
+
+To capture the global shape of skin reflectance curves, we calculate the functional principal components to serve as basis curves, and obtain the corresponding PC scores. Our subsequent analysis is then carried out using these scores.
+
+### Functional principal components
+
+```{r fpca_mean, fig.height=8}
+wavelength = seq(400, 700, 10)
+
+FPCA <- function(data, t, nharm=10, alpha=0.01) {
+  basis = create.bspline.basis(range(t), nbasis = 20, norder = 4)
+  fdobj = Data2fd(argvals = t, y = t(data), basisobj = basis)
+  # --- FPCA ---
+  pca_res <- pca.fd(fdobj, nharm = nharm, centerfns = TRUE)
+  # Outpus:
+  # Mean function:
+  mean_fd <- pca_res$meanfd
+  # Eigenfunctions (harmonics):
+  harm_fd <- pca_res$harmonics     # an fd object with nharm basis functions
+  # Scores:
+  scores  <- pca_res$scores        # n_curves x nharm matrix
+  
+  # --- Evaluate mean/eigenfunctions on the grid ---
+  mean_eval <- eval.fd(t, mean_fd)                # length n_grid
+  harm_eval <- eval.fd(t, harm_fd)                # n_grid x nharm
+  
+  # Percent variance explained:
+  pve_cum = cumsum(pca_res$varprop)
+  K = which(pve_cum > 1-alpha)[1]
+  varprop = pve_cum[K]
+  
+  return(list(
+    mean_eval = mean_eval,
+    harm_eval = harm_eval,
+    scores = scores,
+    K = K,
+    varprop = varprop
+  ))
+}
+
+PlotMean <- function(wavelength, mean_eval) {
+  data <- data.frame(x = wavelength, y = c(mean_eval))
+  plot <- ggplot(data, aes(x, y)) + geom_line() +
+  theme_classic() + ylim(0, 70) + labs(
+      x = "Wavelength (nm)",
+      y = "Percent Reflectance of Skin",
+      title = titles[i])
+  return(plot)
+}
+
+fpca_res_list = list()
+plots_list = list()
+for (i in seq_along(issa_list)) {
+  issa_data_select = issa_list[[i]]
+  fpca_res = FPCA(issa_data_select %>% dplyr::select("400":"700"), wavelength)
+  fpca_res_list[[i]] = fpca_res
+  plot_select = PlotMean(wavelength, fpca_res$mean_eval)
+  plots_list[[i]] = plot_select
+}
+
+wrap_plots(plots_list, ncol = 2, guides = "collect") + plot_annotation(title = "FPCA mean curve") & theme(legend.position = "bottom")
+
+
+if (FALSE) {
+data = issa_cn_forehead %>% dplyr::select("400":"700")
+
+fdobj = Data2fd(argvals = wavelength, y = t(data))
+
+# --- FPCA ---
+nharm <- 10                      # number of components to compute
+pca_res <- pca.fd(fdobj, nharm = nharm, centerfns = TRUE)
+
+# Outputs:
+# Mean function:
+mean_fd <- pca_res$meanfd
+# Eigenfunctions (harmonics):
+harm_fd <- pca_res$harmonics     # an fd object with nharm basis functions
+# Scores:
+scores  <- pca_res$scores        # n_curves x nharm matrix
+
+# Percent variance explained:
+pve <- 100 * pca_res$varprop
+cbind(PC = paste0("PC", 1:nharm), PVE = round(pve, 2))
+
+t_grid = wavelength
+
+# --- Evaluate mean/eigenfunctions on the grid (for plotting/export) ---
+mean_eval <- eval.fd(wavelength, mean_fd)                # length n_grid
+harm_eval <- eval.fd(wavelength, harm_fd)                # n_grid x nharm
+
+# Example: plot first two eigenfunctions
+values = pca_res$values
+df_harm <- data.frame(
+  t = rep(t_grid, 2),
+  value = c(harm_eval[,1], harm_eval[,2]),
+  pc = factor(rep(c("PC1", "PC2"), each = length(t_grid)))
+)
+
+ggplot() + geom_line(aes(x=wavelength, y=mean_eval))
+
+ggplot(df_harm, aes(t, value, color = pc)) +
+  geom_line() +
+  labs(x = "t (e.g., wavelength)", y = "eigenfunction", color = "Component",
+       title = "First two FPCA eigenfunctions (fda::pca.fd)") +
+  theme_minimal()
+
+# --- Reconstruct a curve from first K PCs (optional) ---
+K <- 3
+scores_K <- scores[, 1:K, drop = FALSE]
+harm_eval_K <- harm_eval[, 1:K, drop = FALSE]
+# Reconstruct all curves on the grid:
+Y_recon <- sweep(scores_K %*% t(harm_eval_K), 2, mean_eval, FUN = "+")
+# Y_recon is n_curves x n_grid (same shape as Y)
+
+data_recon = data.frame(Y_recon)
+colnames(data_recon) = wavelength
+data_recon$A = issa_cn_forehead$A
+
+plot_1 = PlotSkinSpectraWrapper(data_recon)
+plot_2 = PlotSkinSpectraWrapper(issa_cn_forehead)
+plot_1 + plot_2
+}
+```
+
+**Remark:** It is hard to interpret functional principal components directly.
+
+### FPCA quantile curves
+
+
+```{r fpca_depth, fig.height=8}
+SelectFPCADepth <- function(data, scores, k1=10, k2=10) {
+  depths = depth.halfspace(scores, scores)
+  high_idx = order(depths, decreasing = TRUE)[1:k1]
+  low_idx = order(depths, decreasing = FALSE)[1:k2]
+  
+  data_processed = data[c(high_idx, low_idx), ]
+  data_processed$depth = c(rep("Central", k1), rep("Extreme", k2))
+  
+  return(data_processed)
+}
+
+PlotFPCADepth <- function(data, scores, k1=10, k2=10) {
+  data_processed = SelectFPCADepth(data, scores, k1, k2)
+  data_long = calculateMIndex(data_processed)
+  
+  plot <- ggplot(data_long, aes(x = wavelength, y = reflectance, 
+                           group = A, color = cmi, linetype = depth)) +
+    geom_line() +  # Add transparency to handle overlapping lines
+    # Color gradient from dark to light skin
+    scale_color_gradientn(
+      colours = c("#42230c", "#a15c33", "#fbf7ec"),
+      values = rescale(x = c(50, 40, 20)),
+      oob = squish,
+      limits = c(20, 130)
+    ) +
+    expand_limits(y = 0) +
+    theme_classic() +
+    labs(
+      x = "Wavelength (nm)",
+      y = "Percent Reflectance of Skin",
+      color = "Melanin Index",
+      linetype = "Functional depth"
+    ) +
+    guides(color = guide_colorbar(reverse = TRUE)) +
+    # Highlight the region used for melanin index calculation
+    annotate("rect", xmin = 640, xmax = 670, ymin = 0, ymax = 70,
+             alpha = 0.3, fill = "#ff0000")
+
+  return(plot)
+}
+
+plots_list = list()
+for (i in seq_along(issa_list)) {
+  issa_data_select = issa_list[[i]]
+  fpca_res = fpca_res_list[[i]]
+  K = fpca_res$K
+  scores = fpca_res$scores[, 1:K, drop=FALSE]
+  plot_select = PlotFPCADepth(issa_data_select, scores) + labs(title = titles[i])
+  plots_list[[i]] = plot_select
+}
+
+wrap_plots(plots_list, ncol = 2, guides = "collect") + plot_annotation(title = "FPCA depth quantile curves") & theme(
+    legend.position = "bottom")
+```
+
+# Functional classifier
+
+Our next step is to develop a functional classifier that can determine whether a new curve is realistic, that is, whether it belongs to the underlying distribution.
