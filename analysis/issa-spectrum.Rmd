@@ -74,7 +74,8 @@ The datasheet arranges data across columns labelled A to BQ:
 
 ```{r load_issa}
 # Load the ISSA skin spectrum reflectance data
-issa_path <- "G:/Phd/Colloborator/Tina Lasisi/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
+# issa_path <- "G:/Phd/Colloborator/Tina Lasisi/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
+issa_path <- "/Users/hjh/PhD/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
 issa_code <- read.xlsx(issa_path, sheet = 1)
 issa <- read.xlsx(issa_path, sheet = 2)
 
@@ -415,7 +416,7 @@ $$D_{FM}(x) = \int_T d_t(x(t)) dt.$$
 **Remark:** The FM depth captures how often the curve $x(t)$ sits near the pointwise median.
 
 + **Modified Band Depth (MBD)**: For each pair of sample curves $(i,j)$, form the band between them, and check the portion of time $x(t)$ stays inside the band. Average over all pairs:
-$$MBD(x)=\frac{2}{n(n-1)} \sum_{i< j} \frac{\lambda(\{t:~\min(x_i(t),x_j(t))\leq x(t) \leq \max(x_i(t),x_j(t)})}{\lambda(T)}.$$
+$$MBD(x)=\frac{2}{n(n-1)} \sum_{i< j} \frac{\lambda(\{t:~\min(x_i(t),x_j(t))\leq x(t) \leq \max(x_i(t),x_j(t))\})}{\lambda(T)}.$$
 With Ranks $R_j$ of $x(t_j)$ among $\{x_i(t_j)\}_{1\leq i \leq n}$, a handy grid formula is
 $$MBD(x) = \frac{1}{p} \sum_{j=1}^p \frac{(R_j-1)(n-R_j)}{\binom{n}{2}}.$$
 **Remark:** MBD captures how much of the time the curve lies within typical envelopes.
