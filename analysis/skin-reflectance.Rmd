@@ -1,5 +1,5 @@
 ---
-title: "Shape analysis for ISSA"
+title: "Shape analysis for skin reflectance spectrum"
 author: "Junhui He"
 date: "`r Sys.Date()`"
 output:
@@ -71,6 +71,16 @@ issa_data <- read.xlsx(issa_path, sheet = 2)
 # Extract the skin spectrum data
 issa <- issa_data[10:nrow(issa_data), ] # 360 nm: 13rd column, 780 nm: 55th column
 colnames(issa) <- issa_data[9, ]
+
+# Calculate melanin index using the formula from the literature
+# This uses the red region of the spectrum (640-670nm)
+issa = issa %>% 
+    mutate(
+      # Average reflectance in the red region
+      eqn1 = ((`650` + `660` + (0.5 * `640`) + (0.5 * `660`)) / 3) / 100,
+      # Convert to melanin index
+      cmi = 100 * log10(1 / eqn1)
+    )
 ```
 
 ```{r util_plot_functions}
@@ -90,18 +100,9 @@ colnames(issa) <- issa_data[9, ]
 #' @param sample_size Number of spectra to sample (default 400)
 #' @return Long-format data frame with id, wavelength, reflectance, and cmi
 calculateMIndex <- function(data) {
-  # Calculate melanin index using the formula from the literature
-  # This uses the red region of the spectrum (640-670nm)
-  data_processed <- data %>% 
-    mutate(
-      # Average reflectance in the red region
-      eqn1 = ((`650` + `660` + (0.5 * `640`) + (0.5 * `660`)) / 3) / 100,
-      # Convert to melanin index
-      cmi = 100 * log10(1 / eqn1)
-    )
   
   # Prepare data for plotting
-  data_long <- data_processed %>%
+  data_long <- data %>%
     #mutate(id = row_number()) %>%
     # Filter to reasonable melanin index range
     # filter(cmi >= 20 & cmi <= 130) %>% 
@@ -200,15 +201,11 @@ wrap_plots(plots_body_list, ncol = 3, guides = "collect") + plot_annotation(titl
 
 # Derivative analysis
 
-## First derivative
+## First derivative calculation
 
-We calculate the derivatives of the function to measure its growth rate. Since the skin reflectance is evaluated at a equally spaced wavelengths, i.e., $\{300,310,\ldots,690,700\}$, we calculate the differences in function values to represent the derivatives.
+We calculate the derivatives of the function to measure its growth rate. Especially, we estimate the first derivatives using local polynomial regression. The polynomial degree is 2, and the bandwidth is selected by direct plug-in methodology, which is about 13 nm.
 
-```{r finite_diff}
-# finite differences
-dy = t(diff(t(issa %>% select("400":"700")))) # first derivative
-ddy = t(diff(t(dy))) # second derivative
-
+```{r derivatives}
 # plot the first derivatives
 PlotDerivative <- function(data) {
   # Prepare data for plotting
@@ -245,49 +242,168 @@ PlotDerivative <- function(data) {
   
   return(plot)
 }
+```
 
-issa = issa %>% 
-    mutate(
-      # Average reflectance in the red region
-      eqn1 = ((`650` + `660` + (0.5 * `640`) + (0.5 * `660`)) / 3) / 100,
-      # Convert to melanin index
-      cmi = 100 * log10(1 / eqn1)
-    )
 
-dy_df = as.data.frame(dy) %>% mutate(A = issa$A, cmi = issa$cmi)
-plot_derivative = PlotDerivative(dy_df)
+```{r loc-poly}
+# estimate the derivatives using local polynomials
+library(KernSmooth)
+
+issa_spec = as.matrix(issa %>% select("400":"700")) # visible spectrum
+wavelength = seq(400, 700, 10) # wavelength grid points
+
+drv_est = t(apply(issa_spec, 1, function(spec) {
+  drv_est = locpoly(x=wavelength, y=spec, drv=1, degree=2, bandwidth=0.8*dpill(wavelength, spec), gridsize=length(wavelength))
+  drv_est$y
+})) # estimate the first derivatives using local polynomials
+
+colnames(drv_est) = colnames(issa_spec)
+drv_est_df = as.data.frame(drv_est) %>% mutate(A = issa$A, cmi = issa$cmi)
+
+plot_derivative = PlotDerivative(drv_est_df)
 plot_derivative
+```
+
+There is one first-derivative curve that behaves noticeably differently, particularly around the 700 nm wavelength. To examine whether it is an outlier, we plot its reflectance values and derivatives side by side.
+
+
+```{r outlier-der, fig.height=4.5}
+# plot the outlier
+out_idx = which(drv_est[,31] > 2)
+plot_out_drv = PlotDerivative((drv_est_df[out_idx,])) + labs(title = "First derivatives")
+plot_out_val = PlotSkinSpectraWrapper(issa[out_idx,]) + labs(title = "Function values")
+
+wrap_plots(plot_out_val, plot_out_drv, ncol = 2, guides = "collect") + plot_annotation(title = "Outlier of ISSA skin reflectance spectrum") & theme(
+    legend.position = "bottom")
+```
+
+Then we remove the outlier, and plot the first derivatives without outlier.
+
+```{r remove-outlier}
+drv_est = drv_est[-out_idx, ]
+drv_est_df = drv_est_df[-out_idx, ]
+
+PlotDerivative(drv_est_df)
 ```
 
 
 ## Variations in the first derivatives
 
-We observe that higher curves tend to be more oscillatory, whereas lower curves appear flatter. To examine this pattern, we compute the standard deviation of the first derivatives as a measure of oscillation. The figures below show a clear positive relationship between the variation of the first derivatives and the average reflectance, or a negative relationship between the variation of the first derivatives and melanin index.
+We observe that higher curves tend to be more oscillatory, whereas lower curves appear flatter. To examine this pattern, we compute the standard deviation of the first derivatives as a measure of oscillation. The figures below show a clear negative relationship between the variation of the first derivatives and melanin index.
 
-```{r var_in_derivatice, fig.height=5}
-ave = rowMeans(issa %>% select("400":"700")) # average reflectance
-sd_der = apply(dy, 1, sd) # standard deviation in first derivatives
+```{r var_in_derivatice}
+sd_der = apply(drv_est, 1, sd) # standard deviation in first derivatives
 
-plot1_var = ggplot() +
-  geom_point(aes(x = ave, y = sd_der), size = 0.5) +
-  theme_classic() +
-  labs(
-    x = "Average reflectance",
-    y = "Standard deviation in first derivatives",
-    title = "Variations in first derivatives versus average reflectance"
-  )
-
-plot2_var = ggplot() +
-  geom_point(aes(x = issa$cmi, y = sd_der), size = 0.5) +
+ggplot() +
+  geom_point(aes(x = issa$cmi[-out_idx], y = sd_der), size = 0.5) +
   theme_classic() +
   labs(
     x = "Melanin index",
     y = "Standard deviation in first derivatives",
     title = "Variations in first derivatives versus melanin index"
   )
-
-plot1_var + plot2_var
 ```
 
 
-# Sliding window approaches
+
+## Peak and valley detection
+
+From the derivative plot, we observe roughly three peaks or valleys within the ranges [410, 500], [500, 570], and [570, 700]. Our goal is to identify the locations of these peaks and valleys, as they provide biologically meaningful information. For each skin reflectance curve, we partition it into the three ranges and determine the corresponding peak or valley within each range. We then collect these peak/valley locations across all curves. The resulting peak/valley samples are displayed as the following boxplot.
+
+```{r peak_drv}
+peak_wrs = list(c(410, 500), c(570, 700)) # peak wavelength range
+peaks = list()
+for (i in c(1:2)) {
+  wr = peak_wrs[[i]]
+  col_start = which(wavelength == wr[1])
+  col_end = which(wavelength == wr[2])
+  peak = apply(drv_est, 1, function(drv) {
+    peak_idx = which.max((drv[col_start:col_end]))
+    wavelength[col_start:col_end][peak_idx]
+  })
+  peaks[[i]] = peak
+}
+
+valley_wr = c(500, 570)
+wr = valley_wr
+col_start = which(wavelength == wr[1])
+col_end = which(wavelength == wr[2])
+valley = apply(drv_est, 1, function(drv) {
+  peak_idx = which.min((drv[col_start:col_end]))
+  wavelength[col_start:col_end][peak_idx]
+})
+
+valley_idx = drv_est[cbind(c(1:nrow(drv_est)), (valley - 390)/10)]<0 # filter the negative derivatives
+valley = valley[valley_idx]
+
+# create a long data frame
+pv_df = data.frame(wavelength = c(peaks[[1]], valley, peaks[[2]]),
+                   group = c(rep("A", length(peaks[[1]])), rep("B", length(valley)), rep("C", length(peaks[[2]]))))
+pv_df$group = factor(pv_df$group, levels = c("A", "B", "C"), labels = c("First peak", "Valley", "Second peak"))
+
+ggplot(pv_df, aes(x = group, y = wavelength, fill = group)) +
+  geom_boxplot() +
+  labs(title = "Boxplots of peaks/valleys across all curves") +
+  theme_classic()
+```
+
+```{r peak_drv_summary}
+drv_summary = data.frame(group = c("First peak", "Valley", "Second peak"),
+                         rbind(summary(peaks[[1]]), summary(valley), summary(peaks[[2]])))
+kable(drv_summary, col.names = c("group", "min", "25% quantile", "median", "mean", "75% quantile", "max"), caption = "The summary of peak/valley estimation")
+```
+
+## Calculate melanin index at the peak wavelength
+
+From the peak–valley analysis, the valley wavelength is 530 nm and the highest (second) peak occurs at 600 nm. Biologically, the valley wavelength is associated with the erythema index, while the peak wavelength is associated with the melanin index. Accordingly, we compute the erythema index at 530 nm and the melanin index at 600 nm. In subsequent visualizations, we color the skin reflectance curves by a modified melanin index evaluated at the peak wavelengths identified in our analysis.
+
+```{r melanin-index}
+#' Generate skin spectra plot
+#' 
+#' Creates a plot showing reflectance spectra colored by melanin index
+#' 
+#' @param data Long-format data with wavelength, reflectance and cmi
+#' @return A ggplot object
+PlotSkinSpectra <- function(data) {
+  plot <- ggplot(data, aes(x = wavelength, y = reflectance, group = A,
+                          color = cmi)) +
+    geom_line(alpha = 0.6) +  # Add transparency to handle overlapping lines
+    # Color gradient from dark to light skin
+    scale_color_gradientn(
+      colours = c("#42230c", "#a15c33", "#fbf7ec"),
+      values = rescale(x = c(50, 40, 20)),
+      oob = squish,
+      limits = c(20, 130)
+    ) +
+    expand_limits(y = 0) +
+    theme_classic() +
+    labs(
+      x = "Wavelength (nm)",
+      y = "Reflectance percentage of skin",
+      color = "Melanin index"
+    ) +
+    guides(color = guide_colorbar(reverse = TRUE)) +
+    # Highlight the region used for melanin index calculation
+    geom_vline(xintercept = 600, color = "#ff0000")
+  
+  return(plot)
+}
+
+
+issa = issa %>% 
+  mutate(
+    old_eqn1 = eqn1,
+    old_cmi = cmi,
+    # Average reflectance in the red region
+    eqn1 = (`600`) / 100,
+    # Convert to melanin index
+    cmi = 100 * log10(1 / eqn1)
+    )
+
+PlotSkinSpectraWrapper(issa)
+```
+
+
+# Within-individual analysis
+
+
