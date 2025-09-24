@@ -320,6 +320,25 @@ set.seed(123)
 umap_result = umap(sliding_window_features, n_neighbors = 30, n_components = 2, min_dist = 0.1, scale = TRUE)
 umap_df = data.frame(UMAP1 = umap_result[,1], UMAP2 = umap_result[,2], ethnicity = issa$D, body = factor(as.numeric(issa$G)))
 
+umap_df$cmi = issa$cmi
+
+ggplot(umap_df, aes(UMAP1, UMAP2, color = cmi)) +
+  geom_point(alpha = 0.6, size = 0.5) +
+  # Color gradient from dark to light skin
+    scale_color_gradientn(
+      colours = c("#42230c", "#a15c33", "#fbf7ec"),
+      values = rescale(x = c(50, 40, 20)),
+      oob = squish,
+      limits = c(20, 130)
+    ) +
+  labs(
+    color = "Menalin index"
+  ) +
+  theme_classic() +
+  theme(legend.position = "bottom") +
+  guides(color = guide_colorbar(reverse = TRUE))
+  
+
 # plot umap results colored by ethnicity and body locations
 plot1_umap = ggplot(umap_df, aes(UMAP1, UMAP2, color = ethnicity)) +
   geom_point(alpha = 0.6, size = 0.5) +
