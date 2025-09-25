@@ -64,7 +64,8 @@ The datasheet arranges data across columns labelled A to BQ:
 
 ```{r load_issa}
 # Load the ISSA skin spectrum reflectance data
-issa_path <- "G:/Phd/Colloborator/Tina Lasisi/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
+# issa_path <- "G:/Phd/Colloborator/Tina Lasisi/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
+issa_path <- "/Users/hjh/PhD/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
 issa_code <- read.xlsx(issa_path, sheet = 1)
 issa_data <- read.xlsx(issa_path, sheet = 2)
 
@@ -400,10 +401,187 @@ issa = issa %>%
     cmi = 100 * log10(1 / eqn1)
     )
 
-PlotSkinSpectraWrapper(issa)
+PlotSkinSpectraWrapper(issa) + labs(title = "ISSA skin reflectance curves", subtitle = "melanin index calculated at 600 nm")
 ```
 
 
 # Within-individual analysis
 
+In this section, we explore the relationship between skin reflectance spectrum at different body locations within the same individual. We will visualize the skin reflectance curves colored by body location to examine the dependency across body parts. Furthermore, we will predict the skin reflectance spectrum at one body location conditioned on other body locations.
 
+```{r within-individual}
+# find individuals with measurements at all 12 body locations
+sub_ids = rle(issa$C)
+for (iloc in bodys) {
+  issa_body = issa %>% filter(G == iloc)
+  sub_ids = intersect(sub_ids, issa_body$C)
+}
+```
+
+## Visualize within-individual skin reflectance curves at different body locations
+
+The following figure shows the skin reflectance curves for nine randomly selected individuals.
+
+```{r plot_within_individual, fig.height=10}
+set.seed(1234)
+sub_ids = unique(issa$C) # all subjects
+sub_ids = sample(sub_ids, 9) # sample nine individuals
+
+PlotWithinSkin <- function(data) {
+  data = calculateMIndex(data)
+  plot <- ggplot(data, aes(x = wavelength, y = reflectance, group = A,
+                          color = G)) +
+    geom_line(alpha = 0.6) +  # Add transparency to handle overlapping lines
+    ylim(0, 80) +
+    theme_classic() +
+    labs(
+      x = "Wavelength (nm)",
+      y = "Reflectance percentage of skin",
+      color = "Body location"
+    )
+  
+  return(plot)
+}
+
+plots_within_list = list()
+my_colors = c("1" = "#e41a1c", "2" = "#377eb8", "3" = "#4daf4a", "4" = "#984ea3", "5" = "#ff7f00", "6" = "#ffff33", "7" = "#a65628", "8" = "#f781bf", "9" = "#999999", "10" = "#66c2a5", "11" = "#fc8d62", "12" = "#8da0cb")
+for (isub in sub_ids) {
+  issa_sub = issa %>% filter(C == isub)
+  issa_sub$G = factor(issa_sub$G, levels = bodys)
+  plot_within = PlotWithinSkin(issa_sub) + labs(title = paste("Subject", isub)) + 
+    scale_color_manual(values = my_colors, 
+                       limits = bodys,
+                       labels = body_names)
+  plots_within_list[[isub]] = plot_within
+}
+
+
+wrap_plots(plots_within_list, ncol = 3) + plot_annotation(title = "ISSA skin reflectance curves within the same individual") & theme(
+    legend.position = "none")
+```
+
+## Predict skin reflectance spectrum at one body location conditioned on other body locations
+
+We use separate linear regression models to predict the skin reflectance spectrum at a given body location using spectra from other locations, wavelength by wavelength. Specifically, at wavelength $t$, let the reflectance curve at the target body location be denoted by $Y_i(t)$, and the reflectance curves at the other locations by $X_{i1}(t),\ldots, X_{iJ}(t)$. We fit the model
+$$Y_i(t) = \sum_{j=1}^J X_{ij}(t)\beta_j(t) + \varepsilon_i(t),$$
+where $t$ ranges from 400 nm to 700 nm, and $\beta_j(t)$ is the coefficient function for body location $j$, and $\varepsilon_i(t)$ is the residual error term.
+
+Due to the limited number of individuals with measurements across all 12 body locations, we restrict attention to the 225 individuals with complete measurements at 8 body locations: Cheek, Forehead, Chin, Back of Hand, Inner arm, Outer arm, Neck and Palm. The following table shows the number of individuals with measurements available at each location.
+
+```{r body_location_summary}
+body_summary = issa %>% group_by(G) %>% summarise(n = n())
+body_summary = body_summary[order(body_summary$n, decreasing = TRUE),]
+body_summary = body_summary %>% mutate(body_location = body_names[as.numeric(G)])
+
+kable(body_summary %>% select(body_location, n), col.names = c("Body location", "Number of individuals"), caption = "The number of individuals with measurements at different body locations")
+```
+
+The skin reflectance curves for the 225 individuals at the 8 body locations are shown in the following figure.
+
+```{r predict_within_individual, fig.height = 10}
+# find individuals with measurements at least 8 body locations
+sub_ids = unique(issa$C)
+bodys_reg = body_summary$G[1:8]
+body_names_reg = body_names[as.numeric(bodys_reg)]
+for (iloc in bodys_reg) {
+  issa_body = issa %>% filter(G == iloc)
+  sub_ids = intersect(sub_ids, issa_body$C)
+}
+
+issa_reg = issa %>% filter(C %in% sub_ids, G %in% bodys_reg)
+
+plots_body_list = list()
+for (iloc in bodys_reg) {
+  issa_body = issa_reg %>% filter(G == iloc)
+  plot_body = PlotSkinSpectraWrapper(issa_body) + labs(title = body_names[as.numeric(iloc)])
+  plots_body_list[[iloc]] = plot_body
+}
+
+wrap_plots(plots_body_list, ncol = 3, guides = "collect") + plot_annotation(title = "ISSA skin reflectance curves for regression", subtitle = "vary among body locations") & theme(
+    legend.position = "bottom")
+
+# construct the data matrix
+issa_within = array(NA, dim = c(length(sub_ids), length(wavelength), length(bodys_reg)))
+dimnames(issa_within) = list(sub_ids, wavelength, body_names_reg)
+for (i in 1:length(bodys_reg)) {
+  iloc = bodys_reg[i]
+  issa_body = issa_reg %>% filter(G == iloc)
+  issa_within[,,i] = as.matrix(issa_body %>% select("400":"700"))
+}
+```
+
+Without loss of generality, we focus on predicting the skin reflectance spectrum at the **Palm** location using measurements from the other seven body locations. The 225 individuals are randomly divided into a training set of 180 and a test set of 45. At each wavelength, we fit the linear regression model using the training set and then predict the Palm reflectance spectrum for individuals in the test set.
+
+```{r predict_palm}
+set.seed(1234)
+train_idx = sample(1:225, 180) # randomly select 180 individuals for training
+test_idx = setdiff(1:225, train_idx) # the remaining 45 individuals for testing
+
+train_data = issa_within[train_idx,,] # training data
+test_data = issa_within[test_idx,,] # test data
+
+palm_models = list()
+pred_palm = array(NA, dim = c(length(test_idx), length(wavelength)))
+colnames(pred_palm) = wavelength
+for (iw in 1:length(wavelength)) {
+  train_df = data.frame(train_data[,iw,])
+  palm_model = lm(Palm ~ . , data = train_df)
+  palm_models[[iw]] = palm_model
+  
+  test_df = data.frame(test_data[,iw,])
+  pred_palm[,iw] = predict(palm_model, newdata = test_df)
+}
+```
+
+The following figure shows the prediction versus ground truth results for 9 randomly selected individuals in the test set.
+
+```{r predict_palm_plot, fig.height=10}
+set.seed(1234)
+test_sub_ids = sub_ids[test_idx]
+test_sub_ids = sample(test_sub_ids, 9) # sample nine individuals
+
+PlotPrediction <- function(data) {
+  data = calculateMIndex(data)
+  plot <- ggplot(data, aes(x = wavelength, y = reflectance, group = group,
+                          color = group)) +
+    geom_line(alpha = 0.6) +  # Add transparency to handle overlapping lines
+    ylim(0, 80) +
+    theme_classic() +
+    labs(
+      x = "Wavelength (nm)",
+      y = "Reflectance percentage of skin",
+      color = "Type"
+    )
+  
+  return(plot)
+}
+
+plots_pred_list = list()
+for (isub in test_sub_ids) {
+  isub_idx = which(test_sub_ids == isub)
+  pred_sub = data.frame(rbind(test_data[isub_idx,,which(body_names_reg == "Palm")], pred_palm[isub_idx,]))
+  colnames(pred_sub) = wavelength
+  pred_sub$group = c("Ground truth", "Prediction")
+  plot_pred = PlotPrediction(pred_sub) + labs(title = paste("Subject", isub))
+  plots_pred_list[[isub]] = plot_pred
+}
+
+
+wrap_plots(plots_pred_list, ncol = 3, guides = "collect") + plot_annotation(title = "ISSA skin reflectance prediction versus ground truth", subtitle = "target body location: Palm") & theme(
+    legend.position = "bottom")
+```
+
+The following figure shows the prediction results for all 45 individuals in the test set.
+
+```{r predict_palm_all, fig.height=5}
+true_palm_df = as.data.frame(test_data[,,which(body_names_reg == "Palm")]) %>% mutate(A = row_number(), eqn1 = (`600`) / 100, cmi = 100 * log10(1 / eqn1))
+
+plot_true = PlotSkinSpectraWrapper(true_palm_df) + labs(title = "Ground truth") + ylim(0, 80)
+
+pred_palm_df = as.data.frame(pred_palm) %>% mutate(A = row_number(), eqn1 = (`600`) / 100, cmi = 100 * log10(1 / eqn1))
+
+plot_pred = PlotSkinSpectraWrapper(pred_palm_df) + labs(title = "Prediction") + ylim(0, 80)
+
+wrap_plots(plot_true, plot_pred, ncol = 2, guides = "collect") + plot_annotation(title = "ISSA skin reflectance prediction results", subtitle = "target body location: Palm") & theme(
+    legend.position = "bottom")
+```
