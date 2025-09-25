@@ -362,7 +362,7 @@ spectrum</h1>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+workflowr <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -373,8 +373,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> </a>
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -387,9 +387,9 @@ aria-hidden="true"></span> </a>
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 1
+aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>SkinSpectrum/</code> <span
@@ -412,21 +412,18 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
-<span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
-changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges"
+<div id="strongRMarkdownfilestronguptodate"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R
-Markdown file created these results, you’ll want to first commit it to
-the Git repo. If you’re still working on the analysis, you can ignore
-this warning. When you’re finished, you can run
-<code>wflow_publish</code> to commit the R Markdown file and build the
-HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
@@ -517,15 +514,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjunhuihe2000SkinSpectrumtreec49ab7d6a7cdf18d0810d711ca85d332ecc8d050targetblankc49ab7da">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjunhuihe2000SkinSpectrumtreee0b385d5c188a8ee52ca1f5bfcbaa845388da8a2targetblanke0b385da">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/junhuihe2000/SkinSpectrum/tree/c49ab7d6a7cdf18d0810d711ca85d332ecc8d050" target="_blank">c49ab7d</a>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/tree/e0b385d5c188a8ee52ca1f5bfcbaa845388da8a2" target="_blank">e0b385d</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomjunhuihe2000SkinSpectrumtreec49ab7d6a7cdf18d0810d711ca85d332ecc8d050targetblankc49ab7da"
+id="strongRepositoryversionstrongahrefhttpsgithubcomjunhuihe2000SkinSpectrumtreee0b385d5c188a8ee52ca1f5bfcbaa845388da8a2targetblanke0b385da"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -535,7 +532,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/junhuihe2000/SkinSpectrum/tree/c49ab7d6a7cdf18d0810d711ca85d332ecc8d050" target="_blank">c49ab7d</a>.
+<a href="https://github.com/junhuihe2000/SkinSpectrum/tree/e0b385d5c188a8ee52ca1f5bfcbaa845388da8a2" target="_blank">e0b385d</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -550,15 +547,9 @@ were generated:
 </p>
 <pre><code>
 Ignored files:
+    Ignored:    .DS_Store
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
-    Ignored:    analysis/figure/
-
-Untracked files:
-    Untracked:  analysis/skin-reflectance.Rmd
-
-Unstaged changes:
-    Modified:   analysis/sliding-window.Rmd
 
 </code></pre>
 <p>
@@ -574,9 +565,89 @@ have uncommitted changes.
 </div>
 <div id="versions" class="tab-pane fade">
 <p>
-There are no past versions. Publish this analysis with
-<code>wflow_publish()</code> to start tracking its development.
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/skin-reflectance.Rmd</code>) and
+HTML (<code>docs/skin-reflectance.html</code>) files. If you’ve
+configured a remote Git repository (see <code>?wflow_git_remote</code>),
+click on the hyperlinks in the table below to view the files as they
+were in that past version.
 </p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/e0b385d5c188a8ee52ca1f5bfcbaa845388da8a2/analysis/skin-reflectance.Rmd" target="_blank">e0b385d</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-09-24
+</td>
+<td>
+wflow_publish("analysis/skin-reflectance.Rmd")
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/5d39caa93a2573ba98257c4fee23f746ab7b11fa/analysis/skin-reflectance.Rmd" target="_blank">5d39caa</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-09-24
+</td>
+<td>
+within-individual analysis
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/junhuihe2000/SkinSpectrum/5d39caa93a2573ba98257c4fee23f746ab7b11fa/docs/skin-reflectance.html" target="_blank">5d39caa</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-09-24
+</td>
+<td>
+within-individual analysis
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <hr>
 </div>
 </div>
@@ -633,9 +704,83 @@ Asian), AF (African), IQ (Iraqi), TH (Thai), JP (Japanese), AB
 <p>We visualize the skin reflectance curves across all ethnicity and
 body locations in the following figure:</p>
 <p><img src="figure/skin-reflectance.Rmd/plot_reflectance-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plot_reflectance-1">
+Past versions of plot_reflectance-1.png
+</button>
+</p>
+<div id="fig-plot_reflectance-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/5d39caa93a2573ba98257c4fee23f746ab7b11fa/docs/figure/skin-reflectance.Rmd/plot_reflectance-1.png" target="_blank">5d39caa</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-09-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Furthermore, we visualize the skin reflectance curves per body
 location in the following figure:</p>
 <p><img src="figure/skin-reflectance.Rmd/plot_body-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plot_body-1">
+Past versions of plot_body-1.png
+</button>
+</p>
+<div id="fig-plot_body-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/5d39caa93a2573ba98257c4fee23f746ab7b11fa/docs/figure/skin-reflectance.Rmd/plot_body-1.png" target="_blank">5d39caa</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-09-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </div>
 <div id="derivative-analysis" class="section level1" number="2">
@@ -646,19 +791,129 @@ number="2.1">
 <h2><span class="header-section-number">2.1</span> First derivative
 calculation</h2>
 <p>We calculate the derivatives of the function to measure its growth
-rate. Since the skin reflectance is evaluated at a equally spaced
-wavelengths, i.e., <span
-class="math inline">\(\{300,310,\ldots,690,700\}\)</span>, we calculate
-the differences in function values to represent the derivatives.</p>
+rate. Especially, we estimate the first derivatives using local
+polynomial regression. The polynomial degree is 2, and the bandwidth is
+selected by direct plug-in methodology, which is about 13 nm.</p>
 <p><img src="figure/skin-reflectance.Rmd/loc-poly-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-loc-poly-1">
+Past versions of loc-poly-1.png
+</button>
+</p>
+<div id="fig-loc-poly-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/5d39caa93a2573ba98257c4fee23f746ab7b11fa/docs/figure/skin-reflectance.Rmd/loc-poly-1.png" target="_blank">5d39caa</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-09-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>There is one first-derivative curve that behaves noticeably
 differently, particularly around the 700 nm wavelength. To examine
 whether it is an outlier, we plot its reflectance values and derivatives
 side by side.</p>
 <p><img src="figure/skin-reflectance.Rmd/outlier-der-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-outlier-der-1">
+Past versions of outlier-der-1.png
+</button>
+</p>
+<div id="fig-outlier-der-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/5d39caa93a2573ba98257c4fee23f746ab7b11fa/docs/figure/skin-reflectance.Rmd/outlier-der-1.png" target="_blank">5d39caa</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-09-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Then we remove the outlier, and plot the first derivatives without
 outlier.</p>
 <p><img src="figure/skin-reflectance.Rmd/remove-outlier-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-remove-outlier-1">
+Past versions of remove-outlier-1.png
+</button>
+</p>
+<div id="fig-remove-outlier-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/5d39caa93a2573ba98257c4fee23f746ab7b11fa/docs/figure/skin-reflectance.Rmd/remove-outlier-1.png" target="_blank">5d39caa</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-09-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="variations-in-the-first-derivatives" class="section level2"
 number="2.2">
@@ -670,6 +925,43 @@ standard deviation of the first derivatives as a measure of oscillation.
 The figures below show a clear negative relationship between the
 variation of the first derivatives and melanin index.</p>
 <p><img src="figure/skin-reflectance.Rmd/var_in_derivatice-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-var_in_derivatice-1">
+Past versions of var_in_derivatice-1.png
+</button>
+</p>
+<div id="fig-var_in_derivatice-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/5d39caa93a2573ba98257c4fee23f746ab7b11fa/docs/figure/skin-reflectance.Rmd/var_in_derivatice-1.png" target="_blank">5d39caa</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-09-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="peak-and-valley-detection" class="section level2" number="2.3">
 <h2><span class="header-section-number">2.3</span> Peak and valley
@@ -683,6 +975,43 @@ or valley within each range. We then collect these peak/valley locations
 across all curves. The resulting peak/valley samples are displayed as
 the following boxplot.</p>
 <p><img src="figure/skin-reflectance.Rmd/peak_drv-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-peak_drv-1">
+Past versions of peak_drv-1.png
+</button>
+</p>
+<div id="fig-peak_drv-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/5d39caa93a2573ba98257c4fee23f746ab7b11fa/docs/figure/skin-reflectance.Rmd/peak_drv-1.png" target="_blank">5d39caa</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-09-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <table>
 <caption>The summary of peak/valley estimation</caption>
 <thead>
@@ -700,9 +1029,9 @@ the following boxplot.</p>
 <tr class="odd">
 <td align="left">First peak</td>
 <td align="right">410</td>
+<td align="right">440</td>
 <td align="right">450</td>
-<td align="right">450</td>
-<td align="right">451.4251</td>
+<td align="right">450.2012</td>
 <td align="right">450</td>
 <td align="right">500</td>
 </tr>
@@ -711,7 +1040,7 @@ the following boxplot.</p>
 <td align="right">520</td>
 <td align="right">530</td>
 <td align="right">530</td>
-<td align="right">529.9077</td>
+<td align="right">529.7931</td>
 <td align="right">530</td>
 <td align="right">540</td>
 </tr>
@@ -719,8 +1048,8 @@ the following boxplot.</p>
 <td align="left">Second peak</td>
 <td align="right">570</td>
 <td align="right">590</td>
-<td align="right">600</td>
-<td align="right">598.6267</td>
+<td align="right">590</td>
+<td align="right">596.4038</td>
 <td align="right">600</td>
 <td align="right">700</td>
 </tr>
@@ -731,20 +1060,175 @@ the following boxplot.</p>
 class="section level2" number="2.4">
 <h2><span class="header-section-number">2.4</span> Calculate melanin
 index at the peak wavelength</h2>
-<p>From the peak–valley analysis, the median valley wavelength is 530 nm
-and the median highest (second) peak occurs at 600 nm. Biologically, the
-valley wavelength is associated with the erythema index, while the peak
+<p>From the peak–valley analysis, the valley wavelength is 530 nm and
+the highest (second) peak occurs at 600 nm. Biologically, the valley
+wavelength is associated with the erythema index, while the peak
 wavelength is associated with the melanin index. Accordingly, we compute
 the erythema index at 530 nm and the melanin index at 600 nm. In
 subsequent visualizations, we color the skin reflectance curves by a
 modified melanin index evaluated at the peak wavelengths identified in
 our analysis.</p>
 <p><img src="figure/skin-reflectance.Rmd/melanin-index-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-melanin-index-1">
+Past versions of melanin-index-1.png
+</button>
+</p>
+<div id="fig-melanin-index-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/5d39caa93a2573ba98257c4fee23f746ab7b11fa/docs/figure/skin-reflectance.Rmd/melanin-index-1.png" target="_blank">5d39caa</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-09-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </div>
 <div id="within-individual-analysis" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Within-individual
 analysis</h1>
+<p>In this section, we explore the relationship between skin reflectance
+spectrum at different body locations within the same individual. We will
+visualize the skin reflectance curves colored by body location to
+examine the dependency across body parts. Furthermore, we will predict
+the skin reflectance spectrum at one body location conditioned on other
+body locations.</p>
+<div
+id="visualize-within-individual-skin-reflectance-curves-at-different-body-locations"
+class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> Visualize
+within-individual skin reflectance curves at different body
+locations</h2>
+<p>The following figure shows the skin reflectance curves for nine
+randomly selected individuals.</p>
+<p><img src="figure/skin-reflectance.Rmd/plot_within_individual-1.png" width="100%" style="display: block; margin: auto;" /></p>
+</div>
+<div
+id="predict-skin-reflectance-spectrum-at-one-body-location-conditioned-on-other-body-locations"
+class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Predict skin
+reflectance spectrum at one body location conditioned on other body
+locations</h2>
+<p>We use separate linear regression models to predict the skin
+reflectance spectrum at a given body location using spectra from other
+locations, wavelength by wavelength. Specifically, at wavelength <span
+class="math inline">\(t\)</span>, let the reflectance curve at the
+target body location be denoted by <span
+class="math inline">\(Y_i(t)\)</span>, and the reflectance curves at the
+other locations by <span class="math inline">\(X_{i1}(t),\ldots,
+X_{iJ}(t)\)</span>. We fit the model <span class="math display">\[Y_i(t)
+= \sum_{j=1}^J X_{ij}(t)\beta_j(t) + \varepsilon_i(t),\]</span> where
+<span class="math inline">\(t\)</span> ranges from 400 nm to 700 nm, and
+<span class="math inline">\(\beta_j(t)\)</span> is the coefficient
+function for body location <span class="math inline">\(j\)</span>, and
+<span class="math inline">\(\varepsilon_i(t)\)</span> is the residual
+error term.</p>
+<p>Due to the limited number of individuals with measurements across all
+12 body locations, we restrict attention to the 225 individuals with
+complete measurements at 8 body locations: Cheek, Forehead, Chin, Back
+of Hand, Inner arm, Outer arm, Neck and Palm. The following table shows
+the number of individuals with measurements available at each
+location.</p>
+<table>
+<caption>The number of individuals with measurements at different body
+locations</caption>
+<thead>
+<tr class="header">
+<th align="left">Body location</th>
+<th align="right">Number of individuals</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Cheek</td>
+<td align="right">2511</td>
+</tr>
+<tr class="even">
+<td align="left">Forehead</td>
+<td align="right">2092</td>
+</tr>
+<tr class="odd">
+<td align="left">Chin</td>
+<td align="right">2072</td>
+</tr>
+<tr class="even">
+<td align="left">Back of Hand</td>
+<td align="right">1716</td>
+</tr>
+<tr class="odd">
+<td align="left">Inner arm</td>
+<td align="right">1692</td>
+</tr>
+<tr class="even">
+<td align="left">Outer arm</td>
+<td align="right">1632</td>
+</tr>
+<tr class="odd">
+<td align="left">Neck</td>
+<td align="right">1162</td>
+</tr>
+<tr class="even">
+<td align="left">Palm</td>
+<td align="right">778</td>
+</tr>
+<tr class="odd">
+<td align="left">Nose tip</td>
+<td align="right">646</td>
+</tr>
+<tr class="even">
+<td align="left">Ear Lobe</td>
+<td align="right">480</td>
+</tr>
+<tr class="odd">
+<td align="left">Ring finger</td>
+<td align="right">243</td>
+</tr>
+<tr class="even">
+<td align="left">Cheek bone</td>
+<td align="right">232</td>
+</tr>
+</tbody>
+</table>
+<p>The skin reflectance curves for the 225 individuals at the 8 body
+locations are shown in the following figure.</p>
+<p><img src="figure/skin-reflectance.Rmd/predict_within_individual-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>Without loss of generality, we focus on predicting the skin
+reflectance spectrum at the <strong>Palm</strong> location using
+measurements from the other seven body locations. The 225 individuals
+are randomly divided into a training set of 180 and a test set of 45. At
+each wavelength, we fit the linear regression model using the training
+set and then predict the Palm reflectance spectrum for individuals in
+the test set.</p>
+<p>The following figure shows the prediction versus ground truth results
+for 9 randomly selected individuals in the test set.</p>
+<p><img src="figure/skin-reflectance.Rmd/predict_palm_plot-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>The following figure shows the prediction results for all 45
+individuals in the test set.</p>
+<p><img src="figure/skin-reflectance.Rmd/predict_palm_all-1.png" width="100%" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -753,45 +1237,49 @@ Session information
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
-<pre><code>R version 4.4.2 (2024-10-31 ucrt)
-Platform: x86_64-w64-mingw32/x64
-Running under: Windows 10 x64 (build 19045)
+<pre><code>R version 4.3.1 (2023-06-16)
+Platform: aarch64-apple-darwin20 (64-bit)
+Running under: macOS 15.6.1
 
 Matrix products: default
-
+BLAS:   /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRblas.0.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
 
 locale:
-[1] LC_COLLATE=Chinese (Simplified)_China.utf8 
-[2] LC_CTYPE=Chinese (Simplified)_China.utf8   
-[3] LC_MONETARY=Chinese (Simplified)_China.utf8
-[4] LC_NUMERIC=C                               
-[5] LC_TIME=Chinese (Simplified)_China.utf8    
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/C/en_US.UTF-8
 
-time zone: America/New_York
+time zone: America/Detroit
 tzcode source: internal
 
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] KernSmooth_2.23-24 openxlsx_4.2.8     scales_1.3.0       lubridate_1.9.4   
- [5] forcats_1.0.0      stringr_1.5.1      dplyr_1.1.4        purrr_1.0.2       
- [9] readr_2.1.5        tidyr_1.3.1        tibble_3.2.1       ggplot2_3.5.1     
-[13] tidyverse_2.0.0    patchwork_1.3.0    knitr_1.49        
+ [1] KernSmooth_2.23-21 openxlsx_4.2.8     scales_1.4.0       lubridate_1.9.4   
+ [5] forcats_1.0.0      stringr_1.5.1      dplyr_1.1.4        purrr_1.0.4       
+ [9] readr_2.1.5        tidyr_1.3.1        tibble_3.2.1       ggplot2_3.5.2     
+[13] tidyverse_2.0.0    patchwork_1.3.1    knitr_1.50         workflowr_1.7.1   
 
 loaded via a namespace (and not attached):
- [1] sass_0.4.9        utf8_1.2.4        generics_0.1.3    stringi_1.8.4    
- [5] hms_1.1.3         digest_0.6.37     magrittr_2.0.3    timechange_0.3.0 
- [9] evaluate_1.0.1    grid_4.4.2        fastmap_1.2.0     rprojroot_2.0.4  
-[13] workflowr_1.7.1   jsonlite_1.8.9    zip_2.3.1         promises_1.3.2   
-[17] fansi_1.0.6       jquerylib_0.1.4   cli_3.6.3         rlang_1.1.4      
-[21] munsell_0.5.1     withr_3.0.2       cachem_1.1.0      yaml_2.3.10      
-[25] tools_4.4.2       tzdb_0.4.0        colorspace_2.1-1  httpuv_1.6.15    
-[29] vctrs_0.6.5       R6_2.5.1          lifecycle_1.0.4   git2r_0.35.0     
-[33] fs_1.6.5          pkgconfig_2.0.3   pillar_1.9.0      bslib_0.8.0      
-[37] later_1.4.1       gtable_0.3.6      glue_1.8.0        Rcpp_1.0.13-1    
-[41] xfun_0.49         tidyselect_1.2.1  rstudioapi_0.17.1 farver_2.1.2     
-[45] htmltools_0.5.8.1 labeling_0.4.3    rmarkdown_2.29    compiler_4.4.2   </code></pre>
+ [1] sass_0.4.10        generics_0.1.4     stringi_1.8.7      hms_1.1.3         
+ [5] digest_0.6.37      magrittr_2.0.3     timechange_0.3.0   evaluate_1.0.3    
+ [9] grid_4.3.1         RColorBrewer_1.1-3 fastmap_1.2.0      rprojroot_2.0.4   
+[13] jsonlite_2.0.0     zip_2.3.3          processx_3.8.6     whisker_0.4.1     
+[17] ps_1.9.1           promises_1.3.3     httr_1.4.7         jquerylib_0.1.4   
+[21] cli_3.6.5          rlang_1.1.6        withr_3.0.2        cachem_1.1.0      
+[25] yaml_2.3.10        tools_4.3.1        tzdb_0.5.0         httpuv_1.6.16     
+[29] vctrs_0.6.5        R6_2.6.1           lifecycle_1.0.4    git2r_0.36.2      
+[33] fs_1.6.6           pkgconfig_2.0.3    callr_3.7.6        pillar_1.10.2     
+[37] bslib_0.9.0        later_1.4.2        gtable_0.3.6       glue_1.8.0        
+[41] Rcpp_1.0.14        xfun_0.52          tidyselect_1.2.1   rstudioapi_0.17.1 
+[45] farver_2.1.2       htmltools_0.5.8.1  labeling_0.4.3     rmarkdown_2.29    
+[49] compiler_4.3.1     getPass_0.2-4     </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 
