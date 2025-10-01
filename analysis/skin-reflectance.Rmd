@@ -16,6 +16,7 @@ library(knitr)
 library(patchwork)
 library(tidyverse)
 library(scales)
+library(dplyr)
 
 library(openxlsx)
 
@@ -64,8 +65,8 @@ The datasheet arranges data across columns labelled A to BQ:
 
 ```{r load_issa}
 # Load the ISSA skin spectrum reflectance data
-# issa_path <- "G:/Phd/Colloborator/Tina Lasisi/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
-issa_path <- "/Users/hjh/PhD/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
+issa_path <- "G:/Phd/Colloborator/Tina Lasisi/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
+# issa_path <- "/Users/hjh/PhD/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
 issa_code <- read.xlsx(issa_path, sheet = 1)
 issa_data <- read.xlsx(issa_path, sheet = 2)
 
@@ -250,7 +251,7 @@ PlotDerivative <- function(data) {
 # estimate the derivatives using local polynomials
 library(KernSmooth)
 
-issa_spec = as.matrix(issa %>% select("400":"700")) # visible spectrum
+issa_spec = as.matrix(issa %>% dplyr::select("400":"700")) # visible spectrum
 wavelength = seq(400, 700, 10) # wavelength grid points
 
 drv_est = t(apply(issa_spec, 1, function(spec) {
@@ -508,7 +509,7 @@ body_summary = issa %>% group_by(G) %>% summarise(n = n())
 body_summary = body_summary[order(body_summary$n, decreasing = TRUE),]
 body_summary = body_summary %>% mutate(body_location = body_names[as.numeric(G)])
 
-kable(body_summary %>% select(body_location, n), col.names = c("Body location", "Number of individuals"), caption = "The number of individuals with measurements at different body locations")
+kable(body_summary %>% dplyr::select(body_location, n), col.names = c("Body location", "Number of individuals"), caption = "The number of individuals with measurements at different body locations")
 ```
 
 The skin reflectance curves for the 225 individuals at the 8 body locations are shown in the following figure.
@@ -541,7 +542,7 @@ dimnames(issa_within) = list(sub_ids, wavelength, body_names_reg)
 for (i in 1:length(bodys_reg)) {
   iloc = bodys_reg[i]
   issa_body = issa_reg %>% filter(G == iloc)
-  issa_within[,,i] = as.matrix(issa_body %>% select("400":"700"))
+  issa_within[,,i] = as.matrix(issa_body %>% dplyr::select("400":"700"))
 }
 ```
 
@@ -620,3 +621,24 @@ plot_pred = PlotSkinSpectraWrapper(pred_palm_df) + labs(title = "Prediction") + 
 wrap_plots(plot_true, plot_pred, ncol = 2, guides = "collect") + plot_annotation(title = "ISSA skin reflectance prediction results", subtitle = "target body location: Palm") & theme(
     legend.position = "bottom")
 ```
+
+# Classify whether skin reflectance curves are realistic or not
+
+```{r generate_test_set}
+# real curves
+real_indices = sample.int(nrow(issa), 300)
+real_curves = issa[real_indices, ]
+# fake curves
+# category 1
+generate_fake_1 <- function(n = 100) {
+  mean = seq(5, 70, length.out = length(wavelength))
+  t(mean + matrix(rnorm(n, 0, 1), nrow = length(wavelength), ncol = n))
+}
+fake_1 = generate_fake_1(100)
+colnames(fake_1) = wavelength
+fake_df_1 = as.data.frame(fake_1)
+```
+
+
+
+
