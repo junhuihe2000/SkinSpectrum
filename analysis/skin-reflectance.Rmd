@@ -254,16 +254,17 @@ issa_spec = as.matrix(issa %>% select("400":"700")) # visible spectrum
 wavelength = seq(400, 700, 10) # wavelength grid points
 
 drv_est = t(apply(issa_spec, 1, function(spec) {
-  drv_est = locpoly(x=wavelength, y=spec, drv=1, degree=2, bandwidth=0.8*dpill(wavelength, spec), gridsize=length(wavelength))
+  drv_est = locpoly(x=wavelength, y=spec, drv=1, degree=2, bandwidth=11, gridsize=length(wavelength))
   drv_est$y
 })) # estimate the first derivatives using local polynomials
 
-colnames(drv_est) = colnames(issa_spec)
+colnames(drv_est) = wavelength
 drv_est_df = as.data.frame(drv_est) %>% mutate(A = issa$A, cmi = issa$cmi)
 
 plot_derivative = PlotDerivative(drv_est_df)
 plot_derivative
 ```
+
 
 There is one first-derivative curve that behaves noticeably differently, particularly around the 700 nm wavelength. To examine whether it is an outlier, we plot its reflectance values and derivatives side by side.
 
@@ -285,6 +286,40 @@ drv_est = drv_est[-out_idx, ]
 drv_est_df = drv_est_df[-out_idx, ]
 
 PlotDerivative(drv_est_df)
+```
+
+```{r resample}
+library(fda)
+
+grid_size = 64 # the number of evaluated points
+common_wave = seq(400, 700, length.out = grid_size)
+
+# create basis representation
+basis <- create.bspline.basis(rangeval = range(wavelength), nbasis = 25)
+
+# resample skin reflectance
+resample_skin_reflectance = sapply(c(1:nrow(issa_spec)), function(i) {
+  y = issa_spec[i,]
+  fd_obj = smooth.basis(wavelength, y, basis)$fd
+  # evaluate function at common grid
+  eval.fd(common_wave, fd_obj)
+}) |> t()
+
+colnames(resample_skin_reflectance) = common_wave
+
+write.csv(resample_skin_reflectance[-out_idx,], file = "data/resample_skin_reflectance.csv", row.names = FALSE)
+
+# resample derivatives
+resample_drv = sapply(c(1:nrow(drv_est)), function(i) {
+  y = drv_est[i,]
+  fd_obj = smooth.basis(wavelength, y, basis)$fd
+  # evaluate function at common grid
+  eval.fd(common_wave, fd_obj)
+}) |> t() # estimate the first derivatives using local polynomials
+
+colnames(resample_drv) = common_wave
+
+write.csv(resample_drv[-out_idx,], file = "data/resample_derivative.csv", row.names = FALSE)
 ```
 
 
