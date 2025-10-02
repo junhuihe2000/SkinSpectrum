@@ -710,7 +710,7 @@ In this section, we use the GAN discriminator embedding + Mahalanobis distance a
 
 We generate a test set of 600 curves, including 300 real curves from ISSA and 300 fake curves. The fake curves are generated from two categories: (1) sine wave with negative amplitude + noise; (2) sine wave with positive amplitude + noise. The following figure shows the real and fake skin reflectance curves in the test set.
 
-```{r generate_test_set, fig.height=9}
+```{r generate_test_set, fig.height=8}
 set.seed(1234)
 # real curves
 real_indices = sample.int(nrow(issa), 300)
