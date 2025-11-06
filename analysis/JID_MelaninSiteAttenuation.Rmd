@@ -1,0 +1,560 @@
+---
+title: "Objective, but not unbiased: accounting for melanin‑ and site-dependent attenuation
+  in the erythema band"
+author: "Junhui He"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+# Load required libraries
+library(knitr)
+library(patchwork)
+library(tidyverse)
+library(scales)
+library(dplyr)
+
+library(openxlsx)
+
+# Set global chunk options for the document
+knitr::opts_chunk$set(
+  echo = FALSE,        # Don't show code in output
+  include = TRUE,      # Include output
+  eval = TRUE,         # Evaluate code chunks
+  warning = FALSE,     # Don't show warnings
+  message = FALSE,     # Don't show messages
+  fig.retina = 2,      # Higher resolution figures
+  fig.width = 8,       # Default figure width
+  fig.height = 6,      # Default figure height
+  out.width = "100%"   # Full width in HTML output
+)
+```
+
+## Load data
+
+```{r load_issa}
+# Load the ISSA skin spectrum reflectance data
+# issa_path <- "G:/Phd/Colloborator/Tina Lasisi/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
+issa_path <- "/Users/hjh/PhD/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
+issa_code <- read.xlsx(issa_path, sheet = 1)
+issa_data <- read.xlsx(issa_path, sheet = 2)
+
+# Extract the skin spectrum data
+issa <- issa_data[10:nrow(issa_data), ] # 360 nm: 13rd column, 780 nm: 55th column
+colnames(issa) <- issa_data[9, ]
+
+# Define body site codes and names
+body_codes = as.character(1:12)
+body_names = c("Back of Hand", "Cheek", "Cheek bone", "Chin", "Ear Lobe", "Forehead", "Inner arm", "Neck", "Nose tip", "Outer arm", "Palm", "Ring finger")
+issa$G = body_names[as.numeric(issa$G)]
+```
+
+### Data subsets
+
+```{r site-combinations}
+library(ComplexUpset)
+
+issa_clean = issa %>% select(C, G) %>% distinct()
+# filter to Cheek, Forehead, Palm sites only
+issa_clean = issa_clean %>% filter(G %in% c("Cheek", "Forehead", "Palm"))
+
+wide <- issa_clean %>%
+  mutate(value = 1) %>%
+  tidyr::pivot_wider(
+    names_from = G,
+    values_from = value,
+    values_fill = 0
+  )
+
+upset(
+  wide,
+  intersect = colnames(wide)[-1],  # all site columns
+  base_annotations = list(
+    'Intersection size' = intersection_size(
+      counts = TRUE
+    )
+  ),
+  set_sizes = (
+    upset_set_size()
+    + geom_bar(fill = 'steelblue')
+  ),
+  width_ratio = 0.25,
+  height_ratio = 0.6
+) +
+  labs(
+    title = "Upset plot of subject-level site combinations",
+    subtitle = "Each intersection shows subjects with measurements from those body sites"
+  ) +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    plot.subtitle = element_text(size = 10),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+
+### Compute (per spectrum; absorbance domain unless noted)
+
+```{r}
+reflectance_to_absorbance <- function(reflectance) {
+  return(-log10(reflectance / 100))
+}
+
+wavelengths = seq(400, 700, by=10)
+reflectance = issa %>% select(`400`:`700`)
+colnames(reflectance) = paste0("R", wavelengths)
+# colnames(reflectance) = wavelengths
+absorbance = as.data.frame(lapply(reflectance, reflectance_to_absorbance))
+colnames(absorbance) = paste0("A", wavelengths)
+spectrum = cbind(issa %>% select(A, C, G), reflectance, absorbance)
+# calculate melanin index and erythema index
+spectrum = spectrum %>% mutate(mi = 100 * `A680`,
+                               ei = 100 * log10(`R680` / ((`R550` + `R560`)/2)))
+# calculate far red melanin slope
+fr_waves = seq(650, 700, by=10)
+fr_absorbance = absorbance %>% select(`A650`:`A700`)
+fr_coef = as.data.frame(t(apply(fr_absorbance, 1, function(x) {
+  model = lm(x ~ fr_waves)
+  return(coef(model))
+})))
+spectrum$s_mel = fr_coef$fr_waves  # slope of far red absorbance
+# calculate baseline-removed hemoglobin residual
+hb_waves = seq(630, 700, by=10)
+hb_absorbance = absorbance %>% select(`A630`:`A700`)
+hb_pred = apply(hb_absorbance, 1, function(x) {
+  model = lm(x ~ hb_waves)
+  return(predict(model, newdata = data.frame(hb_waves = 570)))
+})
+spectrum = spectrum %>% mutate(Hb_resid = (`A560` + `A570` + `A580`)/3 - hb_pred)
+# calculate wide-band Hb slope
+spectrum = spectrum %>% mutate(E_wide = (`A600` - (`A520` + `A530`)/2)/(600 - 525))
+# calculate E_wide tone-robust
+face_subject_ids = intersect(issa_clean$C[issa_clean$G == "Cheek"], issa_clean$C[issa_clean$G == "Forehead"])
+face_spectrum = spectrum %>% filter(C %in% face_subject_ids, G %in% c("Cheek", "Forehead"))
+model = lm(E_wide ~ s_mel, data = face_spectrum)
+face_spectrum$E_wide_tr = -resid(model)
+
+palm_spectrum = spectrum %>% filter(G == "Palm")
+```
+
+```{r util_plot_functions}
+# ==============================================================================
+# DATA PROCESSING FUNCTIONS
+# ==============================================================================
+
+#' Calculate melanin index and prepare data for plotting
+#' 
+#' This function:
+#' 1. Calculates the melanin index (CMI) using wavelengths 640-670nm
+#' 2. Filters data to reasonable CMI range (20-130)
+#' 3. Samples data to prevent plot overload
+#' 4. Converts to long format for ggplot
+#' 
+#' @param data Processed spectral data frame
+#' @param sample_size Number of spectra to sample (default 400)
+#' @return Long-format data frame with id, wavelength, reflectance, and cmi
+calculateMIndex <- function(data) {
+  
+  # Prepare data for plotting
+  data_long <- data %>%
+    #mutate(id = row_number()) %>%
+    # Filter to reasonable melanin index range
+    # filter(cmi >= 20 & cmi <= 130) %>% 
+    # Sample to prevent plot overload
+    # slice_sample(n = sample_size) %>% 
+    # Convert to long format
+    pivot_longer(cols = matches("R^[0-9]+$"), 
+                 names_to = "wavelength", 
+                 values_to = "reflectance") %>% 
+    # Extract numeric wavelength values
+    mutate(wavelength = as.numeric(str_remove(wavelength, "\\D+"))) %>% 
+    # Focus on visible spectrum
+    filter(wavelength >= 400 & wavelength <= 700) # %>%
+    # select(id, everything())
+  
+  return(data_long)
+}
+
+# ==============================================================================
+# PLOTTING FUNCTIONS
+# ==============================================================================
+
+#' Generate skin spectra plot
+#' 
+#' Creates a plot showing reflectance spectra colored by melanin index
+#' 
+#' @param data Long-format data with wavelength, reflectance and cmi
+#' @return A ggplot object
+PlotSkinSpectra <- function(data) {
+  plot <- ggplot(data, aes(x = wavelength, y = reflectance, group = A,
+                          color = mi)) +
+    geom_line(alpha = 0.6) +  # Add transparency to handle overlapping lines
+    # Color gradient from dark to light skin
+    scale_color_gradientn(
+      colours = c("#42230c", "#a15c33", "#fbf7ec"),
+      values = rescale(x = c(50, 40, 20)),
+      oob = squish,
+      limits = c(20, 130)
+    ) +
+    expand_limits(y = 0) +
+    theme_classic() +
+    labs(
+      x = "Wavelength (nm)",
+      y = "Reflectance percentage of skin",
+      color = "Melanin index"
+    ) +
+    guides(color = guide_colorbar(reverse = TRUE)) +
+    # Highlight the region used for melanin index calculation
+    annotate("rect", xmin = 640, xmax = 670, ymin = 0, ymax = 70,
+             alpha = 0.3, fill = "#ff0000")
+  
+  return(plot)
+}
+
+#' Wrapper function to process file and generate plot
+#' 
+#' @param file_name Path to the CSV file
+#' @return A ggplot object
+PlotSkinSpectraWrapper <- function(data) {
+  
+  # Calculate melanin index
+  data_with_mindex <- calculateMIndex(data)
+  
+  # Generate the plot
+  plot <- PlotSkinSpectra(data_with_mindex)
+  
+  return(plot)
+}
+```
+
+```{r}
+PlotSkinSpectraWrapper(face_spectrum)
+```
+
+
+### Derivatives
+
+```{r plot-derivatives}
+# plot the first derivatives
+PlotDerivative <- function(data) {
+  # Prepare data for plotting
+  data_long <- data %>%
+    # Convert to long format
+    pivot_longer(cols = matches("^[0-9]+$"), 
+                 names_to = "wavelength", 
+                 values_to = "delta") %>% 
+    # Extract numeric wavelength values
+    mutate(wavelength = as.numeric(str_remove(wavelength, "\\D+"))) %>% 
+    # Focus on visible spectrum
+    filter(wavelength >= 400 & wavelength <= 700) # %>%
+    
+  plot <- ggplot(data_long, aes(x = wavelength, y = delta, group = A,
+                          color = mi)) +
+    geom_line(alpha = 0.6) +  # Add transparency to handle overlapping lines
+    geom_hline(yintercept = 0, color = "red") +
+    # Color gradient from dark to light skin
+    scale_color_gradientn(
+      colours = c("#42230c", "#a15c33", "#fbf7ec"),
+      values = rescale(x = c(50, 40, 20)),
+      oob = squish,
+      limits = c(20, 130)
+    ) +
+    expand_limits(y = 0) +
+    theme_classic() +
+    guides(color = guide_colorbar(reverse = TRUE))
+  
+  return(plot)
+}
+```
+
+```{r derivatives-face, fig.height=5}
+library(KernSmooth)
+face_reflectance = as.matrix(face_spectrum %>% select(`R400`:`R700`))
+face_absorbance = as.matrix(face_spectrum %>% select(`A400`:`A700`))
+
+drv_facer = t(apply(face_reflectance, 1, function(spec) {
+  drv_est = locpoly(x=wavelengths, y=spec, drv=1, degree=2, bandwidth=10, gridsize=length(wavelengths))
+  drv_est$y
+})) # estimate the first derivatives using local polynomials
+
+colnames(drv_facer) = wavelengths
+drv_facer_df = as.data.frame(drv_facer) %>% mutate(A = face_spectrum$A, mi = face_spectrum$mi)
+
+plot_drv_facer = PlotDerivative(drv_facer_df) + labs(
+      x = "Wavelength (nm)",
+      y = "Derivatives of skin reflectance",
+      title = "First derivatives of skin reflectance",
+      color = "Melanin index"
+    )
+
+drv_facea = t(apply(face_absorbance, 1, function(spec) {
+  drv_est = locpoly(x=wavelengths, y=spec, drv=1, degree=2, bandwidth=10, gridsize=length(wavelengths))
+  drv_est$y
+})) # estimate the first derivatives using local polynomials
+
+colnames(drv_facea) = wavelengths
+drv_facea_df = as.data.frame(drv_facea) %>% mutate(A = face_spectrum$A, mi = face_spectrum$mi)
+
+plot_drv_facea = PlotDerivative(drv_facea_df) + labs(
+      x = "Wavelength (nm)",
+      y = "Derivatives of skin absorbance",
+      title = "First derivatives of skin absorbance",
+      color = "Melanin index"
+    )
+
+wrap_plots(plot_drv_facer, plot_drv_facea, ncol = 2, guides = "collect") + plot_annotation(title = "First derivatives of both reflectance and absrobance (FACE)") & theme(
+    legend.position = "bottom")
+```
+```{r outliers}
+outlier_index = which(drv_facer_df$`700`>2)
+# face_spectrum = face_spectrum[-outlier_index, ]
+drv_facer_df = drv_facer_df[-outlier_index, ]
+drv_facea_df = drv_facea_df[-outlier_index, ]
+
+
+plot_drv_facer = PlotDerivative(drv_facer_df) + labs(
+      x = "Wavelength (nm)",
+      y = "Derivatives of skin reflectance",
+      title = "First derivatives of skin reflectance",
+      color = "Melanin index"
+    )
+
+plot_drv_facea = PlotDerivative(drv_facea_df) + labs(
+      x = "Wavelength (nm)",
+      y = "Derivatives of skin absorbance",
+      title = "First derivatives of skin absorbance",
+      color = "Melanin index"
+    )
+
+wrap_plots(plot_drv_facer, plot_drv_facea, ncol = 2, guides = "collect") + plot_annotation(title = "First derivatives of both reflectance and absrobance after removing outliers (FACE)") & theme(
+    legend.position = "bottom")
+```
+
+```{r derivatives-palm, fig.height=5}
+palm_reflectance = as.matrix(palm_spectrum %>% select(`R400`:`R700`))
+palm_absorbance = as.matrix(palm_spectrum %>% select(`A400`:`A700`))
+
+drv_palmr = t(apply(palm_reflectance, 1, function(spec) {
+  drv_est = locpoly(x=wavelengths, y=spec, drv=1, degree=2, bandwidth=10, gridsize=length(wavelengths))
+  drv_est$y
+})) # estimate the first derivatives using local polynomials
+
+colnames(drv_palmr) = wavelengths
+drv_palmr_df = as.data.frame(drv_palmr) %>% mutate(A = palm_spectrum$A, mi = palm_spectrum$mi)
+plot_drv_palmr = PlotDerivative(drv_palmr_df) + labs(
+      x = "Wavelength (nm)",
+      y = "Derivatives of skin reflectance",
+      title = "First derivatives of skin reflectance",
+      color = "Melanin index"
+    )
+
+drv_palma = t(apply(palm_absorbance, 1, function(spec) {
+  drv_est = locpoly(x=wavelengths, y=spec, drv=1, degree=2, bandwidth=10, gridsize=length(wavelengths))
+  drv_est$y
+})) # estimate the first derivatives using local polynomials
+colnames(drv_palma) = wavelengths
+drv_palma_df = as.data.frame(drv_palma) %>% mutate(A = palm_spectrum$A, mi = palm_spectrum$mi)
+plot_drv_palma = PlotDerivative(drv_palma_df) + labs(
+      x = "Wavelength (nm)",
+      y = "Derivatives of skin absorbance",
+      title = "First derivatives of skin absorbance",
+      color = "Melanin index"
+    )
+wrap_plots(plot_drv_palmr, plot_drv_palma, ncol = 2, guides = "collect") + plot_annotation(title = "First derivatives of both reflectance and absrobance (PALM)") & theme(
+    legend.position = "bottom")
+```
+
+
+### Eumelanin classes
+
+```{r class}
+eumelanin_classes_face = cut(face_spectrum$mi, breaks=c(0, 25, 50, 75, 150))
+
+face_spectrum$class = eumelanin_classes_face
+drv_facer_df$class = eumelanin_classes_face[-outlier_index]
+drv_facea_df$class = eumelanin_classes_face[-outlier_index]
+
+eumelanin_classes_palm = cut(palm_spectrum$mi, breaks=c(0, 25, 50, 75, 150))
+palm_spectrum$class = eumelanin_classes_palm
+drv_palmr_df$class = eumelanin_classes_palm
+drv_palma_df$class = eumelanin_classes_palm
+
+# report the table of the number of subjects in each class
+kable(table(eumelanin_classes_face), col.names = c("Eumelanin class", "Number of subjects"), caption = "Number of subjects in each eumelanin class (Face)")
+kable(table(eumelanin_classes_palm), col.names = c("Eumelanin class", "Number of subjects"), caption = "Number of subjects in each eumelanin class (Palm)")
+```
+
+```{r plot-reflectance-by-class, fig.height=10}
+plots_facer = list()
+for (cls in levels(eumelanin_classes_face)) {
+  cls_data = drv_facer_df %>% filter(class == cls)
+  p = PlotDerivative(cls_data) + labs(
+        x = "Wavelength (nm)",
+        y = "Derivatives of skin reflectance",
+        title = paste("Class", cls),
+        color = "Melanin index"
+      ) + theme(legend.position = "none")
+  plots_facer[[cls]] = p
+}
+
+wrap_plots(plots_facer, ncol = 2) + plot_annotation(title = "First derivatives of skin reflectance by eumelanin classes (FACE)")
+
+plots_palmr = list()
+for (cls in levels(eumelanin_classes_palm)) {
+  cls_data = drv_palmr_df %>% filter(class == cls)
+  p = PlotDerivative(cls_data) + labs(
+        x = "Wavelength (nm)",
+        y = "Derivatives of skin reflectance",
+        title = paste("Class", cls),
+        color = "Melanin index"
+      ) + theme(legend.position = "none")
+  plots_palmr[[cls]] = p
+}
+
+wrap_plots(plots_palmr, ncol = 2) + plot_annotation(title = "First derivatives of skin reflectance by eumelanin classes (PALM)")
+```
+
+```{r plot-absorbance-by-class, fig.height=10}
+plots_facea = list()
+for (cls in levels(eumelanin_classes_face)) {
+  cls_data = drv_facea_df %>% filter(class == cls)
+  p = PlotDerivative(cls_data) + labs(
+        x = "Wavelength (nm)",
+        y = "Derivatives of skin absorbance",
+        title = paste("Class", cls),
+        color = "Melanin index"
+      ) + theme(legend.position = "none")
+  plots_facea[[cls]] = p
+}
+wrap_plots(plots_facea, ncol = 2) + plot_annotation(title = "First derivatives of skin absorbance by eumelanin classes (FACE)")
+
+plots_palma = list()
+for (cls in levels(eumelanin_classes_palm)) {
+  cls_data = drv_palma_df %>% filter(class == cls)
+  p = PlotDerivative(cls_data) + labs(
+        x = "Wavelength (nm)",
+        y = "Derivatives of skin absorbance",
+        title = paste("Class", cls),
+        color = "Melanin index"
+      ) + theme(legend.position = "none")
+  plots_palma[[cls]] = p
+}
+wrap_plots(plots_palma, ncol = 2) + plot_annotation(title = "First derivatives of skin absorbance by eumelanin classes (PALM)")
+```
+
+### Attenuation of EI with melanin
+
+```{r site-residual}
+face_spectrum <- face_spectrum %>%
+  group_by(G) %>%
+  mutate(
+    EI_DSM_resid   = ei - mean(ei, na.rm = TRUE),
+    MI_resid= mi - mean(mi, na.rm = TRUE),
+    E_wide_tr_resid = E_wide_tr - mean(E_wide_tr, na.rm = TRUE)
+  ) %>%
+  ungroup()
+```
+
+```{r EI-MI correlation}
+# Ordinary Least Squares
+fit_ols <- lm(EI_DSM_resid ~ MI_resid, data = face_spectrum)
+summary(fit_ols)
+
+ggplot(face_spectrum, aes(x = MI_resid, y = EI_DSM_resid)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_smooth(method = "lm", se = TRUE, color = "steelblue", size = 1.2) +
+  # geom_smooth(method = "rlm", se = FALSE, color = "tomato", linetype = 2, size = 1.2) +
+  labs(
+    x = "MI (site-residualized)",
+    y = "EI_DSM (site-residualized)",
+    title = "Relationship between EI_DSM_resid and MI_resid"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank()
+  )
+```
+
+```{r E_wide_tr-MI correlation}
+# Ordinary Least Squares
+fit_ols_wide <- lm(E_wide_tr_resid ~ MI_resid, data = face_spectrum)
+summary(fit_ols_wide)
+
+ggplot(face_spectrum, aes(x = MI_resid, y = E_wide_tr_resid)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_smooth(method = "lm", se = TRUE, color = "steelblue", size = 1.2) +
+  # geom_smooth(method = "rlm", se = FALSE, color = "tomato", linetype = 2, size = 1.2) +
+  labs(
+    x = "MI (site-residualized)",
+    y = "E_wide_tr (site-residualized)",
+    title = "Relationship between E_wide_tr_resid and MI_resid"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank()
+  )
+```
+
+### Within-individual Hb tracking
+```{r within-individual}
+cheek_spectrum = face_spectrum %>% filter(G == "Cheek")
+cheek_spectrum = cheek_spectrum %>% group_by(C) %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE), .names = "{.col}"),
+    .groups = "drop"
+  )
+forehead_spectrum = face_spectrum %>% filter(G == "Forehead")
+forehead_spectrum = forehead_spectrum %>% group_by(C) %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE), .names = "{.col}"),
+    .groups = "drop"
+  )
+
+delta_spectrum = cheek_spectrum %>% select(ei, E_wide_tr, Hb_resid) - forehead_spectrum %>% select(ei, E_wide_tr, Hb_resid)
+colnames(delta_spectrum) = paste0("delta_", colnames(delta_spectrum))
+```
+
+```{r delta_ei-delta_hb correlation}
+# Ordinary Least Squares
+fit_ols <- lm(delta_ei ~ delta_Hb_resid, data = delta_spectrum)
+summary(fit_ols)
+
+ggplot(delta_spectrum, aes(x = delta_Hb_resid, y = delta_ei)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_smooth(method = "lm", se = TRUE, color = "steelblue", size = 1.2) +
+  # geom_smooth(method = "rlm", se = FALSE, color = "tomato", linetype = 2, size = 1.2) +
+  labs(
+    x = "Delta Hb_resid",
+    y = "Delta EI",
+    title = "Relationship between Delta EI and Delta Hb_resid"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank()
+  )
+```
+
+```{r delta_E_wide_tr-delta_hb correlation}
+# Ordinary Least Squares
+fit_ols_wide <- lm(delta_E_wide_tr ~ delta_Hb_resid, data = delta_spectrum)
+summary(fit_ols_wide)
+
+ggplot(delta_spectrum, aes(x = delta_Hb_resid, y = delta_E_wide_tr)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_smooth(method = "lm", se = TRUE, color = "steelblue", size = 1.2) +
+  # geom_smooth(method = "rlm", se = FALSE, color = "tomato", linetype = 2, size = 1.2) +
+  labs(
+    x = "Delta Hb_resid",
+    y = "Delta E_wide_tr",
+    title = "Relationship between Delta E_wide_tr and Delta Hb_resid"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank()
+  )
+```
+
+### Site-class (glabrous vs non-glabrous) attenuation

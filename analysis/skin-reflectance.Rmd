@@ -788,7 +788,7 @@ write.csv(resample_test_drv, file = "data/test_derivative.csv", row.names = FALS
 We load the pre-trained GAN discriminator and Gaussian parameters to evaluate the test set. The following table shows the evaluation performance in the test set.
 
 ```{r evaluate_test_set}
-test_evaluation_df = data.frame(Method = "GAN embedding + M-distance", Threshold = "5th quantile", ACC = 0.980, TPR = 0.960, FPR = 0.960, AUC = 1.0)
+test_evaluation_df = data.frame(Method = "GAN embedding + M-distance", Threshold = "5th quantile", ACC = 0.980, TPR = 0.960, FPR = 0.000, AUC = "> 0.99")
 kable(test_evaluation_df, col.names = c("Method", "Threshold", "Accuracy", "True positive rate", "False positive rate", "AUROC"), caption = "The evaluation performance in the test set")
 ```
 
@@ -812,3 +812,15 @@ y_test = c(rep(1, 300), rep(0, 300))
 false_negative_idx = which(y_test == 1 & y_pred == 0)
 PlotSkinSpectraWrapper(test_curves_df[false_negative_idx,]) + labs(title = "False negative skin reflectance curves", subtitle = paste("n =", length(false_negative_idx)))
 ```
+
+### Evaluate Generator
+
+```{r evaluate_generator}
+gen_curves = read.csv("data/fake_skin_reflectance.csv")
+gen_derivatives = read.csv("data/fake_derivative.csv")
+colnames(gen_curves) = common_wave
+colnames(gen_derivatives) = common_wave
+gen_curves_df = as.data.frame(gen_curves) %>% mutate(A = row_number(), eqn1 = (`600`) / 100, cmi = 100 * log10(1 / eqn1))
+PlotSkinSpectraWrapper(gen_curves_df) + labs(title = "Generated skin reflectance curves", subtitle = "from GAN generator")
+```
+
