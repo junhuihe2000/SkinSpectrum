@@ -64,8 +64,8 @@ The datasheet arranges data across columns labelled A to BQ:
 
 ```{r load_issa}
 # Load the ISSA skin spectrum reflectance data
-# issa_path <- "G:/Phd/Colloborator/Tina Lasisi/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
-issa_path <- "/Users/hjh/PhD/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
+issa_path <- "G:/Phd/Colloborator/Tina Lasisi/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
+# issa_path <- "/Users/hjh/PhD/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
 issa_code <- read.xlsx(issa_path, sheet = 1)
 issa_data <- read.xlsx(issa_path, sheet = 2)
 
