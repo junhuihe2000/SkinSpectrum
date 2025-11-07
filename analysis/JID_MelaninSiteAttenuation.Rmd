@@ -321,6 +321,8 @@ wrap_plots(plot_drv_facer, plot_drv_facea, ncol = 2, guides = "collect") + plot_
 ```{r outliers}
 outlier_index = which(drv_facer_df$`700`>1)
 face_spectrum = face_spectrum[-outlier_index, ]
+drv_facer = drv_facer[-outlier_index, ]
+drv_facea = drv_facea[-outlier_index, ]
 drv_facer_df = drv_facer_df[-outlier_index, ]
 drv_facea_df = drv_facea_df[-outlier_index, ]
 
@@ -470,6 +472,62 @@ pdf("../output/derivative_absorbance.pdf", width = 10, height = 7)
 wrap_plots(plots_absorbance, nrow = 2, guides = "collect") + plot_annotation(title = "First derivatives of skin absorbance by eumelanin classes") & theme(legend.position = "bottom")
 dev.off()
 ```
+
+```{r delta-derivative}
+# calculate the delta in derivatives for a spectra curve between peak and valley
+peak_range = c((580-400)/10, (620-400)/10)
+valley_range = c((520-400)/10, (560-400)/10)
+# face
+delta_ref_face = apply(drv_facer, MARGIN = 1, function(spectra) {
+  peak = max(spectra[peak_range[1]:peak_range[2]])
+  valley = min(spectra[valley_range[1]:valley_range[2]])
+  peak - valley
+})
+delta_abs_face = apply(drv_facea, MARGIN = 1, function(spectra) {
+  valley = min(spectra[peak_range[1]:peak_range[2]])
+  peak = max(spectra[valley_range[1]:valley_range[2]])
+  peak - valley
+})
+delta_face = data.frame(site = "Face", delta_ref = delta_ref_face, delta_abs = delta_abs_face, mi = face_spectrum$mi)
+# palm
+delta_ref_palm = apply(drv_palmr, MARGIN = 1, function(spectra) {
+  peak = max(spectra[peak_range[1]:peak_range[2]])
+  valley = min(spectra[valley_range[1]:valley_range[2]])
+  peak - valley
+})
+delta_abs_palm = apply(drv_palma, MARGIN = 1, function(spectra) {
+  valley = min(spectra[peak_range[1]:peak_range[2]])
+  peak = max(spectra[valley_range[1]:valley_range[2]])
+  peak - valley
+})
+delta_palm = data.frame(site = "Palm", delta_ref = delta_ref_palm, delta_abs = delta_abs_palm, mi = palm_spectrum$mi)
+# merge face and palm
+delta_drv = rbind(delta_face, delta_palm)
+delta_drv = delta_drv %>% mutate(log_mi = log(mi))
+```
+
+```{r plot-delta-derivative}
+plot_delta_ref = ggplot(data = delta_drv) + geom_point(aes(log_mi, delta_ref, colour = site), size = 1.0) + theme_classic() +
+  labs(title = "Reflectance",
+       x = "log(Melanin index)",
+       y = "Delta in derivatives between peak and valley")
+plot_delta_abs = ggplot(data = delta_drv) + geom_point(aes(log_mi, delta_abs, colour = site), size = 1.0) + theme_classic() +
+  labs(title = "Absorbance",
+       x = "log(Melanin index)",
+       y = "Delta in derivatives between peak and valley")
+pdf("../output/delta_derivative.pdf", width = 10, height = 6)
+wrap_plots(plot_delta_ref, plot_delta_abs, nrow = 1, guides = "collect") + plot_annotation(title = "Correlation between derivative amplitude and melanin index") & theme(legend.position = "bottom")
+dev.off()
+```
+
+
+```{r regression-drv-mi}
+reg_model = lm(delta_ref ~ log_mi, data = delta_drv)
+summary(reg_model)
+```
+
+
+
 
 ### Attenuation of EI with melanin
 
