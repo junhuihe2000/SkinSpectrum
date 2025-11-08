@@ -16,6 +16,10 @@ library(dplyr)
 
 library(openxlsx)
 
+library(ComplexUpset)
+
+library(ggdist)
+
 # Set global chunk options for the document
 knitr::opts_chunk$set(
   echo = FALSE,        # Don't show code in output
@@ -34,8 +38,8 @@ knitr::opts_chunk$set(
 
 ```{r load_issa}
 # Load the ISSA skin spectrum reflectance data
-issa_path <- "G:/Phd/Colloborator/Tina Lasisi/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
-# issa_path <- "/Users/hjh/PhD/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
+# issa_path <- "G:/Phd/Colloborator/Tina Lasisi/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
+issa_path <- "/Users/hjh/PhD/Meta/ISSA_17_Jan_2025_Yan_Lu.xlsx"
 issa_code <- read.xlsx(issa_path, sheet = 1)
 issa_data <- read.xlsx(issa_path, sheet = 2)
 
@@ -48,6 +52,7 @@ body_codes = as.character(1:12)
 body_names = c("Back of Hand", "Cheek", "Cheek bone", "Chin", "Ear Lobe", "Forehead", "Inner arm", "Neck", "Nose tip", "Outer arm", "Palm", "Ring finger")
 issa$G = body_names[as.numeric(issa$G)]
 ```
+
 
 ### Data subsets
 
@@ -121,8 +126,6 @@ face_spectrum = face_spectrum %>% mutate(mi = 100 * `A680`,
 
 palm_spectrum = spectrum %>% filter(G == "Palm")
 ```
-
-
 
 
 ```{r util_plot_functions}
@@ -382,6 +385,218 @@ wrap_plots(plot_drv_palmr, plot_drv_palma, ncol = 2, guides = "collect") + plot_
 ```
 
 ### Eumelanin classes
+
+```{r upset plot}
+forehead_ids = unique(issa$C[issa$G == "Forehead"])
+spectrum_filtered = spectrum %>% filter(C %in% forehead_ids)
+spectrum_filtered$person_mi = NaN
+for (id in forehead_ids) {
+  person_mi = mean(spectrum_filtered$mi[spectrum_filtered$C == id & spectrum_filtered$G == "Forehead"], na.rm = TRUE)
+  spectrum_filtered$person_mi[spectrum_filtered$C == id] = person_mi
+}
+
+eumelanin_classes_person = cut(spectrum_filtered$person_mi, breaks=c(0, 25, 50, 75, 100, 200))
+eumelanin_classes_person = factor(eumelanin_classes_person, labels = c("Low", "Intermediate low", "Intermediate", "Intermediate high", "High"))
+
+site_info = data.frame(subject = spectrum_filtered$C,
+                       site = spectrum_filtered$G,
+                       eumelanin_class = eumelanin_classes_person,
+                       forehead_mi = spectrum_filtered$person_mi)
+```
+
+```{r}
+# ---- Example input ----
+# df has three columns: subject, group, body_location
+# df <- tibble::tribble(
+#   ~subject, ~group, ~body_location,
+#   "S1", "A", "Cheek",
+#   "S1", "A", "Forehead",
+#   "S2", "B", "Cheek",
+#   "S2", "B", "Nose",
+#   "S3", "A", "Forehead",
+#   "S3", "A", "Nose",
+#   "S4", "B", "Cheek"
+# )
+
+# ---- 1) Deduplicate and widen to subject-level set membership ----
+df_wide <- site_info %>%
+  distinct(subject, eumelanin_class, site) %>%      # one row per subject-group-location
+  mutate(value = 1L) %>%
+  tidyr::pivot_wider(
+    id_cols   = c(subject, eumelanin_class),
+    names_from  = site,
+    values_from = value,
+    values_fill = 0L
+  )
+
+# Identify the set columns (each body location becomes a set)
+set_cols <- setdiff(names(df_wide), c("subject", "eumelanin_class"))
+
+# Convert to logical (ComplexUpset expects logical membership)
+df_wide[set_cols] <- lapply(df_wide[set_cols], \(x) x > 0L)
+
+# ---- 2) Build the UpSet plot ----
+# Intersection bars stacked by 'group', counting subjects
+pdf("../output/eumelanin_class_persite_upset.pdf", width = 10, height = 6)
+upset(
+  df_wide,
+  set_cols,
+  name = "Combinations (sorted by subjects)",
+  set_sizes = FALSE,            # hide set size bars
+  base_annotations = list(
+    "Intersection size" = intersection_size(
+      counts = TRUE,                 # count rows (subjects)
+      mode = "intersect",
+      mapping = aes(fill = eumelanin_class)   # stack bars by group
+    ) +
+      labs(y = "Subjects",
+           fill = "Forehead Eumelanin class",
+           title = "Unique subject per site (stacked by Forehead Eumelanin class)") +
+      scale_fill_brewer(palette = "Set2")
+  ),
+  # min_size = 2,
+  intersections = "all",
+  max_degree = 1,
+  sort_intersections = "descending"  # largest combos first
+)
+dev.off()
+
+```
+
+```{r}
+# ---- 1) Deduplicate and widen to subject-level set membership ----
+site_info_facepalm = site_info %>% filter(site %in% c("Forehead", "Cheek", "Palm"))
+df_wide <- site_info_facepalm %>%
+  distinct(subject, eumelanin_class, site) %>%      # one row per subject-group-location
+  mutate(value = 1L) %>%
+  tidyr::pivot_wider(
+    id_cols   = c(subject, eumelanin_class),
+    names_from  = site,
+    values_from = value,
+    values_fill = 0L
+  )
+
+# Identify the set columns (each body location becomes a set)
+set_cols <- setdiff(names(df_wide), c("subject", "eumelanin_class"))
+
+# Convert to logical (ComplexUpset expects logical membership)
+df_wide[set_cols] <- lapply(df_wide[set_cols], \(x) x > 0L)
+
+# ---- 2) Build the UpSet plot ----
+# Intersection bars stacked by 'group', counting subjects
+pdf("../output/eumelanin_class_facepalm_upset.pdf", width = 10, height = 6)
+upset(
+  df_wide,
+  set_cols,
+  name = "Combinations (sorted by subjects)",
+  set_sizes = FALSE,            # hide set size bars
+  base_annotations = list(
+    "Intersection size" = intersection_size(
+      counts = TRUE,                 # count rows (subjects)
+      mode = "intersect",
+      mapping = aes(fill = eumelanin_class)   # stack bars by group
+    ) +
+      labs(y = "Subjects",
+           fill = "Forehead Eumelanin class",
+           title = "Subject inclusive intersections (stacked by Forehead Eumelanin class)",
+           subtitle = "considering body-sites: Forehead, Cheek, and Palm") +
+      scale_fill_brewer(palette = "Set2")
+  ),
+  # min_size = 2,
+  intersections = "all",
+  # keep_empty_groups = FALSE
+)
+dev.off()
+```
+
+```{r}
+distribution_mi = spectrum %>% select(G, mi) %>% filter(G %in% c("Cheek", "Forehead", "Palm"))
+colnames(distribution_mi) = c("site", "mi")
+
+pdf("../output/melanin_index_distribution_facepalm.pdf", width = 8, height = 6)
+ggplot(distribution_mi, aes(x = mi, fill = site)) +
+  geom_histogram(alpha = 0.5, position = "identity", binwidth = 5) +
+  labs(x = "Melanin index", y = "Count", fill = "Site", title = "Distribution of melanin index for Forehead, Cheek, and Palm") +
+  xlim(0, 120) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_classic()
+dev.off()
+```
+
+
+```{r}
+# 1) Cut mi into 10 equal-width bins (adjust breaks as needed)
+df_bins <- site_info %>%
+  mutate(mi_bin = cut(forehead_mi, breaks = seq(0, 130, by = 10))) %>%   # or cut(mi, seq(min(mi), max(mi), by = 10))
+  count(site, mi_bin, name = "n")
+
+df_bins <- df_bins %>%
+  tidyr::complete(site, mi_bin, fill = list(n = 0))
+
+
+# 2) Heatmap
+pdf("../output/unique_subjects_heatmap.pdf", width = 10, height = 6)
+ggplot(df_bins, aes(x = mi_bin, y = site, fill = n)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = n), color = "white", size = 3) +
+  scale_fill_viridis_c(option = "viridis") +
+  labs(x = "Forehead MI, binned in 10-unit increments", y = "Site", fill = "Subject",
+       title = "Unique subjects per site across 10-unit Forehead MI bins") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    panel.grid = element_blank()
+  )
+dev.off()
+```
+
+
+```{r}
+# order sites (optional, here alphabetically)
+# df <- site_info %>% mutate(site = factor(site, levels = sort(unique(site))))
+df <- site_info
+
+pdf("../output/mi_raincloud.pdf", width = 8, height = 7)
+ggplot(df, aes(y = site, x = forehead_mi, fill = site, color = site)) +
+
+  # 1) Half violin (distribution shape)
+  stat_halfeye(
+    adjust = 0.6,
+    width = 0.6,
+    .width = 0,
+    justification = -0.3,
+    point_colour = NA
+  ) +
+
+  # 2) Boxplot (summary statistics)
+  geom_boxplot(
+    width = 0.15,
+    outlier.shape = NA,
+    alpha = 0.5,
+    color = "black"
+  ) +
+
+  # 3) Jittered points (individual observations)
+  geom_jitter(
+    width = 0.03,
+    height = 0.1,
+    alpha = 0.5,
+    size = 1
+  ) +
+
+  scale_fill_viridis_d() +     # <-- built-in, works for any number of sites
+  scale_color_viridis_d() +
+
+  labs(x = "Forehead MI", y = "Site", 
+       title = "Distribution of Forehead melanin index per site") +
+  xlim(0, 130) +
+  theme_classic(base_size = 12) +
+  theme(legend.position = "none")
+dev.off()
+```
+
+
+
 
 ```{r eumelanin-class}
 eumelanin_classes_face = cut(face_spectrum$mi, breaks=c(0, 25, 50, 75, 100))
