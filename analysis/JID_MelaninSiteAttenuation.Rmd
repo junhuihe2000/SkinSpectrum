@@ -434,7 +434,61 @@ set_cols <- setdiff(names(df_wide), c("subject", "eumelanin_class"))
 
 # Convert to logical (ComplexUpset expects logical membership)
 df_wide[set_cols] <- lapply(df_wide[set_cols], \(x) x > 0L)
+```
 
+```{r}
+# ---- 2) Build the UpSet plot ----
+# Intersection bars stacked by 'group', counting subjects
+pdf("../output/eumelanin_class_ex_upset.pdf", width = 10, height = 6)
+upset(
+  df_wide,
+  set_cols,
+  name = "Combinations (sorted by subjects)",
+  set_sizes = FALSE,            # hide set size bars
+  base_annotations = list(
+    "Intersection size" = intersection_size(
+      counts = TRUE,                 # count rows (subjects)
+      mapping = aes(fill = eumelanin_class)   # stack bars by group
+    ) +
+      labs(y = "Subjects",
+           fill = "Forehead Eumelanin class",
+           title = "Subject exclusive intersections (stacked by Forehead Eumelanin class)") +
+      scale_fill_brewer(palette = "Set2")
+  ),
+  min_size = 2,
+  sort_intersections = "descending"  # largest combos first
+)
+dev.off()
+```
+
+```{r}
+# ---- 2) Build the UpSet plot ----
+# Intersection bars stacked by 'group', counting subjects
+pdf("../output/eumelanin_class_in_upset.pdf", width = 10, height = 6)
+upset(
+  df_wide,
+  set_cols,
+  name = "Combinations (sorted by subjects)",
+  set_sizes = FALSE,            # hide set size bars
+  base_annotations = list(
+    "Intersection size" = intersection_size(
+      counts = TRUE,                 # count rows (subjects)
+      mode = "intersect",
+      mapping = aes(fill = eumelanin_class)   # stack bars by group
+    ) +
+      labs(y = "Subjects",
+           fill = "Forehead Eumelanin class",
+           title = "Subject inclusive intersections (stacked by Forehead Eumelanin class)") +
+      scale_fill_brewer(palette = "Set2")
+  ),
+  min_size = 2,
+  sort_intersections = "descending"  # largest combos first
+)
+dev.off()
+```
+
+
+```{r}
 # ---- 2) Build the UpSet plot ----
 # Intersection bars stacked by 'group', counting subjects
 pdf("../output/eumelanin_class_persite_upset.pdf", width = 10, height = 6)
@@ -503,8 +557,7 @@ upset(
       scale_fill_brewer(palette = "Set2")
   ),
   # min_size = 2,
-  intersections = "all",
-  # keep_empty_groups = FALSE
+  intersections = "all"
 )
 dev.off()
 ```
