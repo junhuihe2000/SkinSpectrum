@@ -15,20 +15,11 @@ source("code/install_packages.R")
 ```
 
 This will automatically install the following packages if they are not already present:
-- knitr
-- patchwork
-- tidyverse
-- scales
-- dplyr
-- openxlsx
-- ComplexUpset
-- ggdist
-- KernSmooth
-- here
+- fda
 
 Alternatively, you can install packages manually:
 
 ```r
 install.packages(c("knitr", "patchwork", "tidyverse", "scales", "dplyr", 
-                   "openxlsx", "ComplexUpset", "ggdist", "KernSmooth", "here"))
+                   "openxlsx", "ComplexUpset", "ggdist", "KernSmooth", "fda", "here"))
 ```

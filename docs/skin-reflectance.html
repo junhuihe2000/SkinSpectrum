@@ -11,7 +11,7 @@
 
 <meta name="author" content="Junhui He" />
 
-<meta name="date" content="2025-10-02" />
+<meta name="date" content="2025-11-11" />
 
 <title>Shape analysis for skin reflectance spectrum</title>
 
@@ -354,7 +354,7 @@ div.tocify {
 <h1 class="title toc-ignore">Shape analysis for skin reflectance
 spectrum</h1>
 <h4 class="author">Junhui He</h4>
-<h4 class="date">2025-10-02</h4>
+<h4 class="date">2025-11-11</h4>
 
 </div>
 
@@ -362,7 +362,7 @@ spectrum</h1>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-ok text-success"
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -373,8 +373,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
-</a>
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -383,13 +383,13 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2025-10-02
+<strong>Last updated:</strong> 2025-11-11
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 0
+aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>SkinSpectrum/</code> <span
@@ -412,18 +412,21 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
-<span class="glyphicon glyphicon-ok text-success"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
-</a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate"
+<div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git
-repository, you know the exact version of the code that produced these
-results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
 </div>
 </div>
 </div>
@@ -514,15 +517,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjunhuihe2000SkinSpectrumtree5abab794694ad82f854933d539e813c20e2cdf7atargetblank5abab79a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjunhuihe2000SkinSpectrumtree7b5490019d59b3f0d622cc654f09dc3378f02e60targetblank7b54900a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/junhuihe2000/SkinSpectrum/tree/5abab794694ad82f854933d539e813c20e2cdf7a" target="_blank">5abab79</a>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/tree/7b5490019d59b3f0d622cc654f09dc3378f02e60" target="_blank">7b54900</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomjunhuihe2000SkinSpectrumtree5abab794694ad82f854933d539e813c20e2cdf7atargetblank5abab79a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomjunhuihe2000SkinSpectrumtree7b5490019d59b3f0d622cc654f09dc3378f02e60targetblank7b54900a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -532,7 +535,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/junhuihe2000/SkinSpectrum/tree/5abab794694ad82f854933d539e813c20e2cdf7a" target="_blank">5abab79</a>.
+<a href="https://github.com/junhuihe2000/SkinSpectrum/tree/7b5490019d59b3f0d622cc654f09dc3378f02e60" target="_blank">7b54900</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -546,22 +549,10 @@ depends on. Below is the status of the Git repository when the results
 were generated:
 </p>
 <pre><code>
-Ignored files:
-    Ignored:    .DS_Store
-    Ignored:    .Rhistory
-    Ignored:    .Rproj.user/
-
-Untracked files:
-    Untracked:  analysis/checkpoints/skin_wgan_gp.pth
-    Untracked:  data/s_pred.csv
-    Untracked:  data/test_derivative.csv
-    Untracked:  data/test_skin_reflectance.csv
-    Untracked:  data/y_pred.csv
-
 Unstaged changes:
-    Modified:   analysis/out_of_distribution.ipynb
-    Modified:   data/resample_derivative.csv
-    Modified:   data/resample_skin_reflectance.csv
+    Modified:   README.md
+    Modified:   analysis/skin-reflectance.Rmd
+    Modified:   code/install_packages.R
 
 </code></pre>
 <p>
@@ -606,6 +597,57 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/a2bfc85d5854914830701ea0045364f1a0329066/analysis/skin-reflectance.Rmd" target="_blank">a2bfc85</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-06
+</td>
+<td>
+create derivative plots by site and eumelanin
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/55df90b3ae48b7bcbcb6db24217f6c9d018f8e94/analysis/skin-reflectance.Rmd" target="_blank">55df90b</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-06
+</td>
+<td>
+add JID
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/junhuihe2000/SkinSpectrum/3666fe6d2b0e27bd653aa56422859912a459e047/docs/skin-reflectance.html" target="_blank">3666fe6</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-10-02
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1798,6 +1840,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/3666fe6d2b0e27bd653aa56422859912a459e047/docs/figure/skin-reflectance.Rmd/generate_test_set-1.png" target="_blank">3666fe6</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-10-02
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/junhuihe2000/SkinSpectrum/blob/3427d6975b17984fe2340119363d184f1bd85f30/docs/figure/skin-reflectance.Rmd/generate_test_set-1.png" target="_blank">3427d69</a>
 </td>
 <td>
@@ -1826,7 +1879,7 @@ performance in the test set.</p>
 <col width="9%" />
 <col width="20%" />
 <col width="21%" />
-<col width="6%" />
+<col width="7%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -1835,7 +1888,7 @@ performance in the test set.</p>
 <th align="right">Accuracy</th>
 <th align="right">True positive rate</th>
 <th align="right">False positive rate</th>
-<th align="right">AUROC</th>
+<th align="left">AUROC</th>
 </tr>
 </thead>
 <tbody>
@@ -1844,8 +1897,8 @@ performance in the test set.</p>
 <td align="left">5th quantile</td>
 <td align="right">0.98</td>
 <td align="right">0.96</td>
-<td align="right">0.96</td>
-<td align="right">1</td>
+<td align="right">0</td>
+<td align="left">&gt; 0.99</td>
 </tr>
 </tbody>
 </table>
@@ -1929,6 +1982,11 @@ Junhui He
 </table>
 </div>
 </div>
+</div>
+<div id="evaluate-generator" class="section level3" number="4.2.3">
+<h3><span class="header-section-number">4.2.3</span> Evaluate
+Generator</h3>
+<p><img src="figure/skin-reflectance.Rmd/evaluate_generator-1.png" width="100%" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1937,13 +1995,13 @@ Session information
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
-<pre><code>R version 4.3.1 (2023-06-16)
-Platform: aarch64-apple-darwin20 (64-bit)
-Running under: macOS 15.6.1
+<pre><code>R version 4.5.2 (2025-10-31)
+Platform: aarch64-apple-darwin20
+Running under: macOS Tahoe 26.1
 
 Matrix products: default
-BLAS:   /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRblas.0.dylib 
-LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
 
 locale:
 [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/C/en_US.UTF-8
@@ -1957,28 +2015,29 @@ attached base packages:
 
 other attached packages:
  [1] fda_6.3.0          deSolve_1.40       fds_1.8            RCurl_1.98-1.17   
- [5] rainbow_3.8        pcaPP_2.0-5        MASS_7.3-60        KernSmooth_2.23-21
- [9] openxlsx_4.2.8     scales_1.4.0       lubridate_1.9.4    forcats_1.0.0     
+ [5] rainbow_3.8        pcaPP_2.0-5        MASS_7.3-65        KernSmooth_2.23-26
+ [9] openxlsx_4.2.8.1   scales_1.4.0       lubridate_1.9.4    forcats_1.0.0     
 [13] stringr_1.5.1      dplyr_1.1.4        purrr_1.0.4        readr_2.1.5       
 [17] tidyr_1.3.1        tibble_3.2.1       ggplot2_3.5.2      tidyverse_2.0.0   
-[21] patchwork_1.3.1    knitr_1.50         workflowr_1.7.1   
+[21] patchwork_1.3.0    knitr_1.50         workflowr_1.7.1   
 
 loaded via a namespace (and not attached):
  [1] gtable_0.3.6       xfun_0.52          bslib_0.9.0        ks_1.15.1         
- [5] processx_3.8.6     lattice_0.21-8     callr_3.7.6        tzdb_0.5.0        
- [9] bitops_1.0-9       vctrs_0.6.5        tools_4.3.1        ps_1.9.1          
-[13] generics_0.1.4     cluster_2.1.4      pkgconfig_2.0.3    Matrix_1.5-4.1    
-[17] RColorBrewer_1.1-3 lifecycle_1.0.4    compiler_4.3.1     farver_2.1.2      
+ [5] processx_3.8.6     lattice_0.22-7     callr_3.7.6        tzdb_0.5.0        
+ [9] bitops_1.0-9       vctrs_0.6.5        tools_4.5.2        ps_1.9.1          
+[13] generics_0.1.4     cluster_2.1.8.1    pkgconfig_2.0.3    Matrix_1.7-4      
+[17] RColorBrewer_1.1-3 lifecycle_1.0.4    compiler_4.5.2     farver_2.1.2      
 [21] git2r_0.36.2       getPass_0.2-4      httpuv_1.6.16      htmltools_0.5.8.1 
-[25] sass_0.4.10        yaml_2.3.10        pracma_2.4.4       later_1.4.2       
+[25] sass_0.4.10        yaml_2.3.10        pracma_2.4.6       later_1.4.2       
 [29] pillar_1.10.2      jquerylib_0.1.4    whisker_0.4.1      cachem_1.1.0      
-[33] mclust_6.1.1       tidyselect_1.2.1   zip_2.3.3          digest_0.6.37     
+[33] mclust_6.1.2       tidyselect_1.2.1   zip_2.3.3          digest_0.6.37     
 [37] mvtnorm_1.3-3      stringi_1.8.7      labeling_0.4.3     rprojroot_2.0.4   
-[41] fastmap_1.2.0      grid_4.3.1         colorspace_2.1-1   cli_3.6.5         
-[45] magrittr_2.0.3     withr_3.0.2        promises_1.3.3     timechange_0.3.0  
-[49] rmarkdown_2.29     httr_1.4.7         hms_1.1.3          evaluate_1.0.3    
-[53] rlang_1.1.6        Rcpp_1.0.14        hdrcde_3.4         glue_1.8.0        
-[57] rstudioapi_0.17.1  jsonlite_2.0.0     R6_2.6.1           fs_1.6.6          </code></pre>
+[41] fastmap_1.2.0      grid_4.5.2         colorspace_2.1-2   cli_3.6.5         
+[45] magrittr_2.0.3     dichromat_2.0-0.1  withr_3.0.2        promises_1.3.3    
+[49] timechange_0.3.0   rmarkdown_2.29     httr_1.4.7         hms_1.1.3         
+[53] evaluate_1.0.3     rlang_1.1.6        Rcpp_1.0.14        hdrcde_3.4        
+[57] glue_1.8.0         rstudioapi_0.17.1  jsonlite_2.0.0     R6_2.6.1          
+[61] fs_1.6.6          </code></pre>
 </div>
 </div>
 </div>

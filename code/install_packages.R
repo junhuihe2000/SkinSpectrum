@@ -15,6 +15,7 @@ required_packages <- c(
   "ComplexUpset",
   "ggdist",
   "KernSmooth",
+  "fda",
   "here"
 )
 

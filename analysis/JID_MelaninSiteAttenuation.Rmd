@@ -40,7 +40,11 @@ knitr::opts_chunk$set(
 )
 ```
 
+Here we analyze data from the International Skin Spectra Archive (ISSA) published in Scientific Data (Lu et al., 2025 [https://doi.org/10.1038/s41597-025-04857-5](https://doi.org/10.1038/s41597-025-04857-5))--a collection of skin reflectances from over 2,000 individuals across multiple ethnicities and multiple body sites.
+
 ## Load data
+
+First we load the data from the original Excel file and prepare it for analysis.
 
 ```{r load_issa}
 # Load the ISSA skin spectrum reflectance data
@@ -58,6 +62,7 @@ body_names = c("Back of Hand", "Cheek", "Cheek bone", "Chin", "Ear Lobe", "Foreh
 issa$G = body_names[as.numeric(issa$G)]
 ```
 
+Next, we check the
 
 ### Data subsets
 
