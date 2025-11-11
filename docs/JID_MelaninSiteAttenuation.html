@@ -9,11 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Junhui He" />
+<meta name="author" content="Junhui He &amp; Tina Lasisi" />
 
-<meta name="date" content="2025-10-16" />
+<meta name="date" content="2025-11-11" />
 
-<title>Objective, but not unbiased: accounting for melanin‑ and site-dependent attenuation in the erythema band</title>
+<title>ISSA data analysis</title>
 
 <script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -351,10 +351,9 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Objective, but not unbiased: accounting for
-melanin‑ and site-dependent attenuation in the erythema band</h1>
-<h4 class="author">Junhui He</h4>
-<h4 class="date">2025-10-16</h4>
+<h1 class="title toc-ignore">ISSA data analysis</h1>
+<h4 class="author">Junhui He &amp; Tina Lasisi</h4>
+<h4 class="date">2025-11-11</h4>
 
 </div>
 
@@ -383,7 +382,7 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2025-10-16
+<strong>Last updated:</strong> 2025-11-11
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -421,10 +420,10 @@ changes </a>
 <div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R
-Markdown file created these results, you’ll want to first commit it to
-the Git repo. If you’re still working on the analysis, you can ignore
-this warning. When you’re finished, you can run
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
 <code>wflow_publish</code> to commit the R Markdown file and build the
 HTML.</p>
 </div>
@@ -517,15 +516,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjunhuihe2000SkinSpectrumtree4c97cc27cf2fae8af31d562176409c66f862f20dtargetblank4c97cc2a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjunhuihe2000SkinSpectrumtree2e16bf4c0539ba5f3a0a6e031054f94bb3db4e4atargetblank2e16bf4a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/junhuihe2000/SkinSpectrum/tree/4c97cc27cf2fae8af31d562176409c66f862f20d" target="_blank">4c97cc2</a>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/tree/2e16bf4c0539ba5f3a0a6e031054f94bb3db4e4a" target="_blank">2e16bf4</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomjunhuihe2000SkinSpectrumtree4c97cc27cf2fae8af31d562176409c66f862f20dtargetblank4c97cc2a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomjunhuihe2000SkinSpectrumtree2e16bf4c0539ba5f3a0a6e031054f94bb3db4e4atargetblank2e16bf4a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -535,7 +534,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/junhuihe2000/SkinSpectrum/tree/4c97cc27cf2fae8af31d562176409c66f862f20d" target="_blank">4c97cc2</a>.
+<a href="https://github.com/junhuihe2000/SkinSpectrum/tree/2e16bf4c0539ba5f3a0a6e031054f94bb3db4e4a" target="_blank">2e16bf4</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -550,18 +549,25 @@ were generated:
 </p>
 <pre><code>
 Ignored files:
-    Ignored:    .DS_Store
-    Ignored:    .Rhistory
-    Ignored:    .Rproj.user/
+    Ignored:    analysis/figure/
 
 Untracked files:
-    Untracked:  analysis/JID_MelaninSiteAttenuation.Rmd
-    Untracked:  data/fake_derivative.csv
-    Untracked:  data/fake_skin_reflectance.csv
+    Untracked:  code/install_packages.R
+    Untracked:  data/ISSA_17_Jan_2025_Yan_Lu.xlsx
 
 Unstaged changes:
-    Modified:   analysis/out_of_distribution.ipynb
-    Modified:   analysis/skin-reflectance.Rmd
+    Modified:   README.md
+    Modified:   analysis/JID_MelaninSiteAttenuation.Rmd
+    Modified:   output/delta_derivative.pdf
+    Modified:   output/derivative_absorbance.pdf
+    Modified:   output/derivative_reflectance.pdf
+    Modified:   output/eumelanin_class_ex_upset.pdf
+    Modified:   output/eumelanin_class_facepalm_upset.pdf
+    Modified:   output/eumelanin_class_in_upset.pdf
+    Modified:   output/eumelanin_class_persite_upset.pdf
+    Modified:   output/melanin_index_distribution_facepalm.pdf
+    Modified:   output/mi_raincloud.pdf
+    Modified:   output/unique_subjects_heatmap.pdf
 
 </code></pre>
 <p>
@@ -577,9 +583,141 @@ have uncommitted changes.
 </div>
 <div id="versions" class="tab-pane fade">
 <p>
-There are no past versions. Publish this analysis with
-<code>wflow_publish()</code> to start tracking its development.
+These are the previous versions of the repository in which changes were
+made to the R Markdown
+(<code>analysis/JID_MelaninSiteAttenuation.Rmd</code>) and HTML
+(<code>docs/JID_MelaninSiteAttenuation.html</code>) files. If you’ve
+configured a remote Git repository (see <code>?wflow_git_remote</code>),
+click on the hyperlinks in the table below to view the files as they
+were in that past version.
 </p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/2e16bf4c0539ba5f3a0a6e031054f94bb3db4e4a/analysis/JID_MelaninSiteAttenuation.Rmd" target="_blank">2e16bf4</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-07
+</td>
+<td>
+generate png
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/f8f8b75f0eed2c32c9b0815f7b516dda67f08279/analysis/JID_MelaninSiteAttenuation.Rmd" target="_blank">f8f8b75</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-07
+</td>
+<td>
+update figures
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/082a1692ac8afeb13077f6cf45b98265994cd210/analysis/JID_MelaninSiteAttenuation.Rmd" target="_blank">082a169</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-07
+</td>
+<td>
+correlation between derivative and melanin index
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/a2bfc85d5854914830701ea0045364f1a0329066/analysis/JID_MelaninSiteAttenuation.Rmd" target="_blank">a2bfc85</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-06
+</td>
+<td>
+create derivative plots by site and eumelanin
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/55df90b3ae48b7bcbcb6db24217f6c9d018f8e94/analysis/JID_MelaninSiteAttenuation.Rmd" target="_blank">55df90b</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-06
+</td>
+<td>
+add JID
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/junhuihe2000/SkinSpectrum/55df90b3ae48b7bcbcb6db24217f6c9d018f8e94/docs/JID_MelaninSiteAttenuation.html" target="_blank">55df90b</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-06
+</td>
+<td>
+add JID
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <hr>
 </div>
 </div>
@@ -588,20 +726,74 @@ There are no past versions. Publish this analysis with
 <h2>Load data</h2>
 <div id="data-subsets" class="section level3">
 <h3>Data subsets</h3>
-<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/site-combinations-1.png" width="100%" style="display: block; margin: auto;" /></p>
 </div>
 <div id="compute-per-spectrum-absorbance-domain-unless-noted"
 class="section level3">
 <h3>Compute (per spectrum; absorbance domain unless noted)</h3>
+<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/unnamed-chunk-2-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/unnamed-chunk-5-1.png" width="100%" style="display: block; margin: auto;" /></p>
 </div>
 <div id="derivatives" class="section level3">
 <h3>Derivatives</h3>
-<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/derivatives-face-1.png" width="100%" style="display: block; margin: auto;" />
-<img src="figure/JID_MelaninSiteAttenuation.Rmd/outliers-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/plot-derivatives-face-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/plot-derivatives-face-no-outliers-1.png" width="100%" style="display: block; margin: auto;" /></p>
 <p><img src="figure/JID_MelaninSiteAttenuation.Rmd/derivatives-palm-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-derivatives-palm-1">
+Past versions of derivatives-palm-1.png
+</button>
+</p>
+<div id="fig-derivatives-palm-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/55df90b3ae48b7bcbcb6db24217f6c9d018f8e94/docs/figure/JID_MelaninSiteAttenuation.Rmd/derivatives-palm-1.png" target="_blank">55df90b</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="eumelanin-classes" class="section level3">
 <h3>Eumelanin classes</h3>
+<pre><code>quartz_off_screen 
+                2 </code></pre>
+<pre><code>quartz_off_screen 
+                2 </code></pre>
+<pre><code>quartz_off_screen 
+                2 </code></pre>
+<pre><code>quartz_off_screen 
+                2 </code></pre>
+<pre><code>quartz_off_screen 
+                2 </code></pre>
+<pre><code>quartz_off_screen 
+                2 </code></pre>
+<pre><code>quartz_off_screen 
+                2 </code></pre>
 <table>
 <caption>Number of subjects in each eumelanin class (Face)</caption>
 <thead>
@@ -612,20 +804,20 @@ class="section level3">
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">(0,25]</td>
-<td align="right">296</td>
+<td align="left">Low</td>
+<td align="right">110</td>
 </tr>
 <tr class="even">
-<td align="left">(25,50]</td>
-<td align="right">3782</td>
+<td align="left">Intermediate low</td>
+<td align="right">1807</td>
 </tr>
 <tr class="odd">
-<td align="left">(50,75]</td>
-<td align="right">419</td>
+<td align="left">Intermediate</td>
+<td align="right">141</td>
 </tr>
 <tr class="even">
-<td align="left">(75,150]</td>
-<td align="right">87</td>
+<td align="left">Intermediate high</td>
+<td align="right">25</td>
 </tr>
 </tbody>
 </table>
@@ -639,25 +831,199 @@ class="section level3">
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">(0,25]</td>
+<td align="left">Low</td>
 <td align="right">127</td>
 </tr>
 <tr class="even">
-<td align="left">(25,50]</td>
+<td align="left">Intermediate low</td>
 <td align="right">623</td>
 </tr>
 <tr class="odd">
-<td align="left">(50,75]</td>
+<td align="left">Intermediate</td>
 <td align="right">27</td>
 </tr>
 <tr class="even">
-<td align="left">(75,150]</td>
+<td align="left">Intermediate high</td>
 <td align="right">1</td>
 </tr>
 </tbody>
 </table>
-<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/plot-reflectance-by-class-1.png" width="100%" style="display: block; margin: auto;" /><img src="figure/JID_MelaninSiteAttenuation.Rmd/plot-reflectance-by-class-2.png" width="100%" style="display: block; margin: auto;" /></p>
-<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/plot-absorbance-by-class-1.png" width="100%" style="display: block; margin: auto;" /><img src="figure/JID_MelaninSiteAttenuation.Rmd/plot-absorbance-by-class-2.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/plot-reflectance-by-class-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plot-reflectance-by-class-1">
+Past versions of plot-reflectance-by-class-1.png
+</button>
+</p>
+<div id="fig-plot-reflectance-by-class-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/55df90b3ae48b7bcbcb6db24217f6c9d018f8e94/docs/figure/JID_MelaninSiteAttenuation.Rmd/plot-reflectance-by-class-1.png" target="_blank">55df90b</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/plot-reflectance-by-class-2.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plot-reflectance-by-class-2">
+Past versions of plot-reflectance-by-class-2.png
+</button>
+</p>
+<div id="fig-plot-reflectance-by-class-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/55df90b3ae48b7bcbcb6db24217f6c9d018f8e94/docs/figure/JID_MelaninSiteAttenuation.Rmd/plot-reflectance-by-class-2.png" target="_blank">55df90b</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/plot-absorbance-by-class-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plot-absorbance-by-class-1">
+Past versions of plot-absorbance-by-class-1.png
+</button>
+</p>
+<div id="fig-plot-absorbance-by-class-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/55df90b3ae48b7bcbcb6db24217f6c9d018f8e94/docs/figure/JID_MelaninSiteAttenuation.Rmd/plot-absorbance-by-class-1.png" target="_blank">55df90b</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/plot-absorbance-by-class-2.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plot-absorbance-by-class-2">
+Past versions of plot-absorbance-by-class-2.png
+</button>
+</p>
+<div id="fig-plot-absorbance-by-class-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/55df90b3ae48b7bcbcb6db24217f6c9d018f8e94/docs/figure/JID_MelaninSiteAttenuation.Rmd/plot-absorbance-by-class-2.png" target="_blank">55df90b</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre><code>quartz_off_screen 
+                2 </code></pre>
+<pre><code>quartz_off_screen 
+                2 </code></pre>
+<pre><code>quartz_off_screen 
+                2 </code></pre>
+<pre><code>
+Call:
+lm(formula = delta_ref ~ log_mi, data = delta_drv)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.33412 -0.07612 -0.01205  0.07194  0.39790 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  2.451352   0.030045   81.59   &lt;2e-16 ***
+log_mi      -0.566581   0.008502  -66.64   &lt;2e-16 ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Residual standard error: 0.111 on 2859 degrees of freedom
+Multiple R-squared:  0.6083,    Adjusted R-squared:  0.6082 
+F-statistic:  4441 on 1 and 2859 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 <div id="attenuation-of-ei-with-melanin" class="section level3">
 <h3>Attenuation of EI with melanin</h3>
@@ -667,38 +1033,112 @@ lm(formula = EI_DSM_resid ~ MI_resid, data = face_spectrum)
 
 Residuals:
      Min       1Q   Median       3Q      Max 
--23.7577  -3.7016  -0.1566   3.5107  24.7876 
+-15.4280  -3.4172  -0.0796   3.1329  19.5020 
 
 Coefficients:
-              Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept) -1.542e-15  7.984e-02     0.0        1    
-MI_resid     1.790e-01  6.703e-03    26.7   &lt;2e-16 ***
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 9.458e-16  1.049e-01    0.00        1    
+MI_resid    1.984e-01  1.006e-02   19.73   &lt;2e-16 ***
 ---
 Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 
-Residual standard error: 5.406 on 4582 degrees of freedom
-Multiple R-squared:  0.1347,    Adjusted R-squared:  0.1345 
-F-statistic: 713.2 on 1 and 4582 DF,  p-value: &lt; 2.2e-16</code></pre>
+Residual standard error: 4.787 on 2081 degrees of freedom
+Multiple R-squared:  0.1576,    Adjusted R-squared:  0.1572 
+F-statistic: 389.3 on 1 and 2081 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p><img src="figure/JID_MelaninSiteAttenuation.Rmd/EI-MI%20correlation-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-EI-MI-correlation-1">
+Past versions of "EI-MI correlation-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-EI-MI-correlation-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/55df90b3ae48b7bcbcb6db24217f6c9d018f8e94/docs/figure/JID_MelaninSiteAttenuation.Rmd/EI-MI correlation-1.png" target="_blank">55df90b</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre><code>
 Call:
 lm(formula = E_wide_tr_resid ~ MI_resid, data = face_spectrum)
 
 Residuals:
        Min         1Q     Median         3Q        Max 
--1.391e-03 -2.455e-04 -1.805e-05  2.443e-04  2.319e-03 
+-1.324e-03 -2.118e-04 -4.880e-06  2.028e-04  1.910e-03 
 
 Coefficients:
               Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)  2.175e-20  5.604e-06   0.000        1    
-MI_resid    -3.469e-06  4.705e-07  -7.374 1.95e-13 ***
+(Intercept)  3.760e-20  7.242e-06   0.000 1.000000    
+MI_resid    -2.435e-06  6.944e-07  -3.507 0.000463 ***
 ---
 Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 
-Residual standard error: 0.0003794 on 4582 degrees of freedom
-Multiple R-squared:  0.01173,   Adjusted R-squared:  0.01151 
-F-statistic: 54.38 on 1 and 4582 DF,  p-value: 1.95e-13</code></pre>
+Residual standard error: 0.0003305 on 2081 degrees of freedom
+Multiple R-squared:  0.005875,  Adjusted R-squared:  0.005397 
+F-statistic:  12.3 on 1 and 2081 DF,  p-value: 0.000463</code></pre>
 <p><img src="figure/JID_MelaninSiteAttenuation.Rmd/E_wide_tr-MI%20correlation-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-E_wide_tr-MI-correlation-1">
+Past versions of "E_wide_tr-MI correlation-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-E_wide_tr-MI-correlation-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/55df90b3ae48b7bcbcb6db24217f6c9d018f8e94/docs/figure/JID_MelaninSiteAttenuation.Rmd/E_wide_tr-MI correlation-1.png" target="_blank">55df90b</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="within-individual-hb-tracking" class="section level3">
 <h3>Within-individual Hb tracking</h3>
@@ -721,25 +1161,63 @@ Residual standard error: 2.421 on 2082 degrees of freedom
 Multiple R-squared:  0.7257,    Adjusted R-squared:  0.7255 
 F-statistic:  5508 on 1 and 2082 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p><img src="figure/JID_MelaninSiteAttenuation.Rmd/delta_ei-delta_hb%20correlation-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-delta_ei-delta_hb-correlation-1">
+Past versions of "delta_ei-delta_hb correlation-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-delta_ei-delta_hb-correlation-1"
+class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/junhuihe2000/SkinSpectrum/blob/55df90b3ae48b7bcbcb6db24217f6c9d018f8e94/docs/figure/JID_MelaninSiteAttenuation.Rmd/delta_ei-delta_hb correlation-1.png" target="_blank">55df90b</a>
+</td>
+<td>
+Junhui He
+</td>
+<td>
+2025-11-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre><code>
 Call:
-lm(formula = delta_E_wide_tr ~ delta_Hb_resid, data = delta_spectrum)
+lm(formula = delta_E_wide ~ delta_Hb_resid, data = delta_spectrum)
 
 Residuals:
        Min         1Q     Median         3Q        Max 
--0.0008627 -0.0001329 -0.0000082  0.0001235  0.0015714 
+-1.637e-03 -1.446e-04  6.740e-06  1.478e-04  8.350e-04 
 
 Coefficients:
                  Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)    -6.823e-05  4.796e-06  -14.23   &lt;2e-16 ***
-delta_Hb_resid  6.010e-03  1.161e-04   51.77   &lt;2e-16 ***
+(Intercept)     9.950e-05  5.258e-06   18.92   &lt;2e-16 ***
+delta_Hb_resid -5.955e-03  1.273e-04  -46.79   &lt;2e-16 ***
 ---
 Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 
-Residual standard error: 0.0002189 on 2082 degrees of freedom
-Multiple R-squared:  0.5628,    Adjusted R-squared:  0.5626 
-F-statistic:  2680 on 1 and 2082 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/delta_E_wide_tr-delta_hb%20correlation-1.png" width="100%" style="display: block; margin: auto;" /></p>
+Residual standard error: 0.00024 on 2082 degrees of freedom
+Multiple R-squared:  0.5126,    Adjusted R-squared:  0.5123 
+F-statistic:  2189 on 1 and 2082 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p><img src="figure/JID_MelaninSiteAttenuation.Rmd/delta_E_wide-delta_hb%20correlation-1.png" width="100%" style="display: block; margin: auto;" /></p>
 </div>
 <div id="site-class-glabrous-vs-non-glabrous-attenuation"
 class="section level3">
@@ -752,16 +1230,16 @@ Session information
 </button>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
-<pre><code>R version 4.3.1 (2023-06-16)
-Platform: aarch64-apple-darwin20 (64-bit)
-Running under: macOS 15.6.1
+<pre><code>R version 4.5.2 (2025-10-31)
+Platform: aarch64-apple-darwin20
+Running under: macOS Tahoe 26.1
 
 Matrix products: default
-BLAS:   /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRblas.0.dylib 
-LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
 
 locale:
-[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/C/en_US.UTF-8
 
 time zone: America/Detroit
 tzcode source: internal
@@ -770,25 +1248,33 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] KernSmooth_2.23-21 ComplexUpset_1.3.3 openxlsx_4.2.8     scales_1.4.0      
- [5] lubridate_1.9.4    forcats_1.0.0      stringr_1.5.1      dplyr_1.1.4       
- [9] purrr_1.0.4        readr_2.1.5        tidyr_1.3.1        tibble_3.2.1      
-[13] ggplot2_3.5.2      tidyverse_2.0.0    patchwork_1.3.1    knitr_1.50        
+ [1] KernSmooth_2.23-26 ggdist_3.3.3       ComplexUpset_1.3.3 openxlsx_4.2.8.1  
+ [5] scales_1.4.0       lubridate_1.9.4    forcats_1.0.0      stringr_1.5.1     
+ [9] dplyr_1.1.4        purrr_1.0.4        readr_2.1.5        tidyr_1.3.1       
+[13] tibble_3.2.1       ggplot2_3.5.2      tidyverse_2.0.0    patchwork_1.3.0   
+[17] knitr_1.50         workflowr_1.7.1   
 
 loaded via a namespace (and not attached):
- [1] sass_0.4.10        generics_0.1.4     lattice_0.21-8     stringi_1.8.7     
- [5] hms_1.1.3          digest_0.6.37      magrittr_2.0.3     evaluate_1.0.3    
- [9] grid_4.3.1         timechange_0.3.0   RColorBrewer_1.1-3 fastmap_1.2.0     
-[13] Matrix_1.5-4.1     rprojroot_2.0.4    workflowr_1.7.1    jsonlite_2.0.0    
-[17] zip_2.3.3          promises_1.3.3     mgcv_1.8-42        jquerylib_0.1.4   
-[21] cli_3.6.5          rlang_1.1.6        splines_4.3.1      withr_3.0.2       
-[25] cachem_1.1.0       yaml_2.3.10        tools_4.3.1        tzdb_0.5.0        
-[29] colorspace_2.1-1   httpuv_1.6.16      vctrs_0.6.5        R6_2.6.1          
-[33] lifecycle_1.0.4    git2r_0.36.2       fs_1.6.6           pkgconfig_2.0.3   
-[37] pillar_1.10.2      bslib_0.9.0        later_1.4.2        gtable_0.3.6      
-[41] glue_1.8.0         Rcpp_1.0.14        xfun_0.52          tidyselect_1.2.1  
-[45] rstudioapi_0.17.1  farver_2.1.2       nlme_3.1-162       htmltools_0.5.8.1 
-[49] labeling_0.4.3     rmarkdown_2.29     compiler_4.3.1    </code></pre>
+ [1] gtable_0.3.6         xfun_0.52            bslib_0.9.0         
+ [4] processx_3.8.6       lattice_0.22-7       callr_3.7.6         
+ [7] tzdb_0.5.0           vctrs_0.6.5          tools_4.5.2         
+[10] ps_1.9.1             generics_0.1.4       pkgconfig_2.0.3     
+[13] Matrix_1.7-4         RColorBrewer_1.1-3   distributional_0.5.0
+[16] lifecycle_1.0.4      compiler_4.5.2       farver_2.1.2        
+[19] git2r_0.36.2         getPass_0.2-4        httpuv_1.6.16       
+[22] htmltools_0.5.8.1    sass_0.4.10          yaml_2.3.10         
+[25] later_1.4.2          pillar_1.10.2        jquerylib_0.1.4     
+[28] whisker_0.4.1        cachem_1.1.0         nlme_3.1-168        
+[31] tidyselect_1.2.1     zip_2.3.3            digest_0.6.37       
+[34] stringi_1.8.7        labeling_0.4.3       splines_4.5.2       
+[37] rprojroot_2.0.4      fastmap_1.2.0        grid_4.5.2          
+[40] colorspace_2.1-2     cli_3.6.5            magrittr_2.0.3      
+[43] dichromat_2.0-0.1    withr_3.0.2          promises_1.3.3      
+[46] timechange_0.3.0     rmarkdown_2.29       httr_1.4.7          
+[49] hms_1.1.3            evaluate_1.0.3       viridisLite_0.4.2   
+[52] mgcv_1.9-3           rlang_1.1.6          Rcpp_1.0.14         
+[55] glue_1.8.0           rstudioapi_0.17.1    jsonlite_2.0.0      
+[58] R6_2.6.1             fs_1.6.6            </code></pre>
 </div>
 </div>
 </div>
